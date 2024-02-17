@@ -1,1 +1,1 @@
-# vocalaize
+# vocalaize-frontend
