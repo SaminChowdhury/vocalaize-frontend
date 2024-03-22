@@ -1,5 +1,6 @@
 import { Switch, Route, Link } from "react-router-dom"
 import "bootstrap/dist/css/bootstrap.min.css"
+import HomePage from './components/HomePage';
 
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
@@ -17,6 +18,7 @@ function App() {
           </Nav>
         </Navbar.Collapse>
       </Navbar>
+      <HomePage></HomePage>
     </div>
   );
 }
