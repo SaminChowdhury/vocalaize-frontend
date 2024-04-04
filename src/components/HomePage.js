@@ -3,6 +3,9 @@ import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import  { useEffect } from 'react';
+import useDrivePicker from 'react-google-drive-picker'
+
 
 const languages = [
     { code: 'en', name: 'English' },
@@ -32,6 +35,28 @@ const languages = [
       onDrop,
       multiple: false, // Ensure only one file is accepted
     });
+
+  const [openPicker, authResponse] = useDrivePicker();  
+  // const customViewsArray = [new google.picker.DocsView()]; // custom view
+  const handleOpenPicker = () => {
+    openPicker({
+      clientId: "1079713253407-jmfbkfeq88tlj2c65drugq55cnsr5850.apps.googleusercontent.com",
+      developerKey: "AIzaSyBrIOAA5G4ouxUJduqC0uKavy2gxCcTkX8",
+      viewId: "DOCS",
+      token:"ya29.a0Ad52N38-NtWt1EcRuzpxLO_KTvOWedlXMsp1vs9PwjnSoW8qDGiATdm1mP8Mq7RXAMwXaKTTeoByJNfwMGaOWcmmYgBn3rdKiXb_Xq_k1j3Uw9jTgqYdfm4_BAAVMEVulzpHmwZr6b2Q7GNSh102wV3cwttTJ9Y4d5_EaCgYKAZcSARASFQHGX2Mi4uVPLp8jfGbUwlxoqeF4_Q0171",
+      showUploadView: true,
+      showUploadFolders: true,
+      supportDrives: true,
+      multiselect: true,
+      // customViews: customViewsArray, // custom view
+      callbackFunction: (data) => {
+        if (data.action === 'cancel') {
+          console.log('User clicked cancel/close button')
+        }
+        console.log(data)
+      },
+    })
+  }
   
     return (
       <div>
@@ -55,8 +80,7 @@ const languages = [
         </div>
         <div {...getRootProps()} >
         <Card>
-          <input {...getInputProps()} />
-          <p>Drag 'n' drop a .mp3 or .wav file here, or click to select a file</p>
+        <button onClick={() => handleOpenPicker()}>Upload File</button>
           </Card>
         </div>
         {file && (

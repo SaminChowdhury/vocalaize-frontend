@@ -5,6 +5,7 @@ import HomePage from './components/HomePage';
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 
+
 function App() {
   return (
     <div className="App">
@@ -14,11 +15,10 @@ function App() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
           <Nav.Link><Link to={"#"}>About</Link></Nav.Link>
-          
           </Nav>
         </Navbar.Collapse>
       </Navbar>
-      <HomePage></HomePage>
+      <HomePage />
     </div>
   );
 }
