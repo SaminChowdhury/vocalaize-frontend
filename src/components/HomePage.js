@@ -1,10 +1,9 @@
 import React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, useRef} from 'react';
 import { useDropzone } from 'react-dropzone';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import  { useEffect } from 'react';
-import useDrivePicker from 'react-google-drive-picker'
+//import useDrivePicker from 'react-google-drive-picker'
 
 
 const languages = [
@@ -36,7 +35,7 @@ const languages = [
       multiple: false, // Ensure only one file is accepted
     });
 
-  const [openPicker, authResponse] = useDrivePicker();  
+  /*const [openPicker, authResponse] = useDrivePicker();  
   // const customViewsArray = [new google.picker.DocsView()]; // custom view
   const handleOpenPicker = () => {
     openPicker({
@@ -56,6 +55,34 @@ const languages = [
         console.log(data)
       },
     })
+  }*/
+
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = async () => {
+    const files = fileInputRef.current.files;
+
+    if (files.length > 0){
+      const formData = new FormData();
+
+      for(let i=0;i<files.length;i++){
+        formData.append("files",files[i]);
+      }
+
+      try{
+          const response = await fetch("http://localhost:5005/upload", {
+            method: 'POST',
+            body: formData
+          })
+
+        const data = await response.json()
+        console.log("uploaded files: ", data.files)
+      }
+
+      catch(error){
+        console.log("error")
+      }
+    }
   }
   
     return (
@@ -78,10 +105,12 @@ const languages = [
             ))}
           </select>
         </div>
-        <div {...getRootProps()} >
-        <Card>
-        <button onClick={() => handleOpenPicker()}>Upload File</button>
-          </Card>
+        <div>
+        
+          <input type='file' multiple ref={fileInputRef} />
+        
+          <button onClick={handleFileUpload}>Upload File</button>
+        
         </div>
         {file && (
           <div style={{ marginTop: '20px' }}>

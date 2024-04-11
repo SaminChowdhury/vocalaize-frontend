@@ -14,7 +14,7 @@ function App() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-          <Nav.Link><Link to={"#"}>About</Link></Nav.Link>
+          <Nav.Link to={"#"}>About</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
