@@ -1,26 +1,40 @@
-import { Switch, Route, Link } from "react-router-dom"
-import "bootstrap/dist/css/bootstrap.min.css"
-import HomePage from './components/HomePage';
+import { 
+  createBrowserRouter, 
+  createRoutesFromElements, 
+  Route, 
+  RouterProvider 
+} from 'react-router-dom'
 
-import Nav from 'react-bootstrap/Nav'
-import Navbar from 'react-bootstrap/Navbar'
+// layouts and pages
+import RootLayout from './layouts/RootLayout'
+import HomePage from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
+import SignIn from './pages/SignIn'
+import Register from './pages/Register'
+import Subscription from './pages/Subscription'
+import About from './pages/About'
+import Saved from './pages/Saved'
 
+
+// router and routes
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<RootLayout />}>
+      <Route index element={<LandingPage />} />
+      <Route path="HomePage" element={<HomePage />} />
+      <Route path="SignIn" element={<SignIn />} />
+      <Route path="Register" element={<Register />} />
+      <Route path="Subscription" element={<Subscription />} />
+      <Route path="About" element={<About />} />
+      <Route path="Saved" element={<Saved />} />
+    </Route>
+  )
+)
 
 function App() {
   return (
-    <div className="App">
-      <Navbar bg="light" expand="lg">
-      <Navbar.Brand>VocalAIze</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">
-          <Nav.Link to={"#"}>About</Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
-      <HomePage />
-    </div>
-  );
+    <RouterProvider router={router} />
+  )
 }
 
-export default App;
+export default App
