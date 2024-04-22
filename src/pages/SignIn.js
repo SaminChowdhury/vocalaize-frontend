@@ -1,6 +1,22 @@
 import { Stack, Text, Input, Button, Container } from "@chakra-ui/react";
+import { useState } from "react";
+import axios from "axios";
 
-export default function SignIn(){
+function SignIn(){
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('/api/login', { email, password });
+            console.log(response.data);
+            // Handle success, maybe redirect to another page
+        } catch (error) {
+            console.error('Error:', error.response.data);
+            // Handle error, display error message to user
+        }
+    };
     return(
     <Container 
     minHeight="100vh"
@@ -26,6 +42,7 @@ export default function SignIn(){
       >
         VocalAIze
       </Text>
+      <form onSubmit={handleSubmit}>
       <Stack
         paddingX="78px"
         paddingY="50px"
@@ -70,7 +87,10 @@ export default function SignIn(){
           Email Address:
         </Text>
         <Input
-          placeholder
+          input type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder= 'Enter your email address'
           size="lg"
           variant="outline"
           isInvalid={false}
@@ -92,7 +112,9 @@ export default function SignIn(){
           Password:
         </Text>
         <Input
-          placeholder
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder= 'Enter your password'
           size="lg"
           variant="outline"
           isInvalid={false}
@@ -118,7 +140,9 @@ export default function SignIn(){
           Continue
         </Button>
       </Stack>
+      </form>
     </Stack>
   </Container>
     );
 }
+export default SignIn;
