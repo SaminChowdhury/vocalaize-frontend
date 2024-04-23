@@ -44,7 +44,7 @@ app.post('/upload', upload.array('files'), async (req, res) => {
                 requestBody:{
                     name: file.originalname,
                     mimeType: file.mimeType,
-                    parents: ['1biXJjJjntW6dIpcezEmKHVfoT-O1zsiQ']
+                    parents: ['1a6q5sEvEBMz7zNSsKRqfolaTlq9L2bvv']
                 },
                 media: {
                     body: fs.createReadStream(file.path)
