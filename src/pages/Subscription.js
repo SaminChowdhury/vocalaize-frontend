@@ -85,6 +85,7 @@ function Subscription() {
         color="#000000"
         maxWidth="100%"
         textAlign="center"
+        mt={'20px'}
       >
         VocalAIze
       </Text>
@@ -93,7 +94,7 @@ function Subscription() {
           direction="row"
           justify="flex-start"
           align="flex-start"
-          spacing="83px"
+          spacing="200px"
         >
           {['Free', 'Plus', 'Ultra'].map(tier => (
             <Stack
@@ -111,6 +112,7 @@ function Subscription() {
                 fontSize="32px"
                 color="#000000"
                 textAlign="center"
+                mt={'20px'}
               >
                 {`${tier} Tier`}<hr/>
               </Text>

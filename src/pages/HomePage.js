@@ -155,6 +155,8 @@ import { useNavigate } from 'react-router-dom';
               isDisabled={false}
               isInvalid={false}
               maxWidth="100%"
+              h={'30px'}
+              borderRadius={'8px'}
             >
               <option value="">Select Language 1</option>
               {languageOptions.map((lang) => (
@@ -170,6 +172,8 @@ import { useNavigate } from 'react-router-dom';
               isDisabled={false}
               isInvalid={false}
               maxWidth="100%"
+              h={'30px'}
+              borderRadius={'8px'}
             >
               <option value="">Select Language 2</option>
               {languageOptions.map((lang) => (
@@ -182,23 +186,41 @@ import { useNavigate } from 'react-router-dom';
           <Stack p={'80px'} borderRadius="10px" direction="column" justify="flex-start" align="flex-start" spacing="10px" overflow="hidden" maxWidth="100%" background="rgba(137, 172, 212, 0.3)">
             <Stack direction="row" justify="flex-start" align="center">
               <input type='file' multiple ref={fileInputRef} />
-              <Button onClick={handleFileUpload} size="lg" variant="solid" bg={'lightgrey'} borderRadius={'3px'}>
-                Upload
+              <Button onClick={handleFileUpload} size="lg" variant="solid" bg={'lightgrey'} borderRadius={'5px'}
+          h={'38px'}
+          >
+            Translate
               </Button>
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'250px'} />
-              <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'} mr={'20px'}>
+              <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'} mr={'20px'} h={'38px'}>
                 Play
               </Button>
-              <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'} mr={'50px'}>
+              <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'} mr={'50px'} h={'38px'}>
                 Pause
               </Button>
             </Stack>
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
-            <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'}>
+            <Button size="lg" 
+              variant="solid" 
+              h={'38px'}
+              bg={'#89ACD4'}  
+              px={'7px'}
+              borderRadius={'5px'}
+              fontSize={'16px'}
+              border={'1px solid black'}>
               Save
             </Button>
-            <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'}>
+            <Button 
+              size="lg" 
+              variant="solid" 
+              h={'38px'}
+              bg={'#89ACD4'}  
+              px={'7px'}
+              borderRadius={'5px'}
+              fontSize={'16px'}
+              border={'1px solid black'}
+              >
               Share
             </Button>
           </Stack>

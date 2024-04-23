@@ -1,36 +1,27 @@
-import { Stack, Text, Button, Container } from '@chakra-ui/react';
+import { Stack, Text, Button, Container, Flex, Box} from '@chakra-ui/react';
 
 export default function LandingPage() {
     return(
-        <Container
-        minHeight="100vh"
-        direction="column"
-        justify="flex-start"
-        align="flex-start"
-        spacing="10px"
-        overflow="hidden"
-        bg="#CBD5E0"
-      >
+      
         <Stack
-          m='200px'
-          direction="row"
-          justify="flex-start"
+          minHeight="100vh"
+          direction='row'
+          justify="center"
           align="center"
-          spacing="200px"
+          spacing='400px'
+          overflow="hidden"
+          bg="#CBD5E0"
         >
           <Stack
             direction="column"
             justify="flex-start"
-            alignContent="flex-start"
-            
+            align="flex-start"
           >
             <Text
               fontFamily="Roboto Mono"
               fontWeight="bold"
               fontSize="64px"
               color="#000000"
-              width="354px"
-              height="53px"
               maxWidth="100%"
             >
               VocalAIze
@@ -40,8 +31,6 @@ export default function LandingPage() {
               fontWeight="bold"
               fontSize="24px"
               color="#000000"
-              width="507px"
-              height="32px"
               maxWidth="100%"
             >
               Explore languages with your voice
@@ -49,10 +38,10 @@ export default function LandingPage() {
           </Stack>
           <Stack
             direction="column"
-            justify="flex-start"
-            align="flex-start"
-            paddingTop={'60px'}
-            spacing="84px"
+            justify="center"
+            align="center"
+            spacing={'100px'}
+            mt={'50px'}
           >
             <Button size="lg" 
             variant="solid" 
@@ -60,7 +49,7 @@ export default function LandingPage() {
             height="48px" 
             px={'10px'} 
             borderRadius={'5px'} 
-            as={'a'} 
+            as={'a'}
             textDecor={'none'} 
             href={'/SignIn'}
             textColor={'black'}
@@ -82,8 +71,6 @@ export default function LandingPage() {
             </Button>
           </Stack>
         </Stack>
-      </Container>
-      
     );
 }
 
