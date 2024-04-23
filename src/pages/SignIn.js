@@ -1,6 +1,17 @@
-import { Stack, Text, Input, Button, Container } from "@chakra-ui/react";
+import { Stack, Text, Input, Button, Container, extendTheme } from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "axios";
+
+const breakpoints = {
+  base: '0em',
+  sm: '30em',
+  md: '48em',
+  lg: '62em',
+  xl: '80em',
+  '2xl': '96em',
+}
+
+const theme = extendTheme({ breakpoints })
 
 function SignIn(){
   const [email, setEmail] = useState('');
@@ -17,96 +28,85 @@ function SignIn(){
             // Handle error, display error message to user
         }
     };
-    return(
-    <Container 
-    minHeight="100vh"
-    direction="column"
-    justify="flex-start"
-    align="flex-start"
-    spacing="10px"
-    overflow="hidden"
-    bg="#CBD5E0"
-    >
+
     
-    <Stack 
-    m='200px'
-    direction="row" 
+    return(
+    
+    <Stack
+    minHeight={'130vh'}
+    direction="column"
     justify="flex-start" 
     align="center" 
-    spacing="200px">
+    bg="#CBD5E0">
       <Text
         fontFamily="Roboto Mono"
         fontWeight="bold"
         fontSize="64px"
         color="#000000"
+        mt={'20px'}
       >
         VocalAIze
       </Text>
       <form onSubmit={handleSubmit}>
       <Stack
-        paddingX="78px"
-        paddingY="50px"
+        w='300px'
+        p={'50px'}
+        direction={'column'}
+        justify={'flex-start'}
+        align={'flex-start'}
         borderRadius="10px"
-        width="676px"
-        height="714px"
-        maxWidth="100%"
         background="rgba(137, 172, 212, 0.3)"
       >
         <Text
           fontFamily="Roboto Mono"
           fontWeight="bold"
-          fontSize="35px"
+          fontSize="25px"
           color="#000000"
-          width="520px"
           height={"0px"}
-          maxWidth="100%"
+          mt={'0px'}
         >
           Sign in
-        </Text>
+        </Text><br/>
         <Text
           fontFamily="Roboto Mono"
           fontWeight="bold"
           fontSize="15px"
           color="#000000"
-          width="254px"
-          height="30px"
           maxWidth="100%"
         >
-          New User? 
-          <Text ml={'5px'} as={'a'} href="/Register">Create an account</Text>
+          New User?<br/> 
+          <Text as={'a'} href="/Register">Create an account</Text>
         </Text>
         <Text
           fontFamily="Roboto Mono"
           fontWeight="bold"
           fontSize="20px"
           color="#000000"
-          width="254px"
           height="20px"
           maxWidth="100%"
         >
           Email Address:
         </Text>
         <Input
-          input type="email"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder= 'Enter your email address'
+          placeholder= 'Email Address'
           size="lg"
           variant="outline"
           isInvalid={false}
           isDisabled={false}
-          width="493px"
+          w='200px'
           height="30px"
-          maxWidth="100%"
+          borderRadius={'8px'}
         />
         <Text
           fontFamily="Roboto Mono"
           fontWeight="bold"
           fontSize="20px"
           color="#000000"
-          width="254px"
           height="20px"
-          marginTop={"60px"}
+          marginTop={"30px"}
           maxWidth="100%"
         >
           Password:
@@ -114,22 +114,23 @@ function SignIn(){
         <Input
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder= 'Enter your password'
+          placeholder= 'Password'
           size="lg"
           variant="outline"
           isInvalid={false}
           isDisabled={false}
-          width="493px"
+          w='200px'
           height="30px"
-          maxWidth="100%"
+          borderRadius={'8px'}
         />
-        <Button 
+        <Button
+        type="submit" 
         size="lg" 
         variant="solid" 
-        bg="lightgrey" 
-        width='80px' 
-        height='30px'
-        mt={'200px'}
+        bg={'#89ACD4'}  
+        px={'7px'}
+        height='48px'
+        mt={'50px'}
         borderRadius={'5px'}
         as={'a'}
         href="/HomePage"
@@ -142,7 +143,6 @@ function SignIn(){
       </Stack>
       </form>
     </Stack>
-  </Container>
     );
 }
 export default SignIn;

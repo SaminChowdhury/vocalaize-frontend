@@ -2,7 +2,7 @@ import { Stack, Select, Button, Box } from '@chakra-ui/react'
 import React from 'react';
 import { useCallback, useState, useRef} from 'react';
 import { useDropzone } from 'react-dropzone';
-import Navbar from '../components/Navbar';
+import NavMenu from '../components/NavMenu';
 //import useDrivePicker from 'react-google-drive-picker'
 
 
@@ -65,7 +65,7 @@ const languages = [
   
     return (
       <div>
-        <Navbar />
+        <NavMenu />
         <Stack
         minHeight="100vh"
     direction="column"
@@ -93,6 +93,8 @@ const languages = [
           isDisabled={false}
           isInvalid={false}
           maxWidth="100%"
+          h={'30px'}
+          borderRadius={'8px'}
         >
           <option value="">Select Language 1</option>
         {languages.map((lang) => (
@@ -107,6 +109,8 @@ const languages = [
           isDisabled={false}
           isInvalid={false}
           maxWidth="100%"
+          h={'30px'}
+          borderRadius={'8px'}
         >
           <option value="">Select Language 2</option>
         {languages.map((lang) => (
@@ -134,23 +138,42 @@ const languages = [
           align="center"
           
         >
-          <input type='file' 
+          <input 
+          type='file' 
           multiple ref={fileInputRef}
           />
-
-          <Button onClick={handleFileUpload} 
+          <Button onClick={handleFileUpload}
           size="lg" 
           variant="solid" 
           bg={'lightgrey'}
-          borderRadius={'3px'}>
-            Upload
+          borderRadius={'5px'}
+          h={'38px'}
+          >
+            Translate
           </Button>
           <Box 
           as='div' 
           borderRight={'2px solid black'}
           h={'100px'}
-          mx={'250px'}
+          mx={'50px'}
           />
+           <Box
+              //insert display translation
+              w={'200px'}
+              h={'50px'}
+              bg={'ivory'}
+              borderRadius={'8px'}
+              alignContent={'center'}
+              textAlign={'center'}
+              fontFamily="Roboto Mono"
+              fontWeight="bold"
+              fontSize="15px"
+              color="#000000"
+              maxWidth="100%"
+              mr={'20px'}
+              >
+              i.e.: sample.wav
+              </Box>
           <Button 
           size="lg" 
           variant="solid" 
@@ -158,6 +181,7 @@ const languages = [
           borderRadius={'5px'}
           p={'5px'}
           mr={'20px'}
+          h={'38px'}
           >
             Play
           </Button>
@@ -168,6 +192,7 @@ const languages = [
           borderRadius={'5px'}
           p={'5px'}
           mr={'50px'}
+          h={'38px'}
           >
             Pause
           </Button>
@@ -184,19 +209,12 @@ const languages = [
         <Button 
         size="lg" 
         variant="solid" 
-        bg={'white'}
+        h={'38px'}
+        bg={'#89ACD4'}  
+        px={'7px'}
         borderRadius={'5px'}
-        p={'5px'}
-        >
-          Save
-        </Button>
-        <Button 
-        size="lg" 
-        variant="solid" 
-        bg={'white'}
-        borderRadius={'5px'}
-        p={'5px'}
-        
+        fontSize={'16px'}
+        border={'1px solid black'}
         >
           Share
         </Button>

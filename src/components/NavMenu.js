@@ -1,8 +1,12 @@
-import { Stack, Text } from '@chakra-ui/react'
+import Nav from 'react-bootstrap/Nav'
+import Navbar from 'react-bootstrap/Navbar'
+import "bootstrap/dist/css/bootstrap.min.css"
+import "../App.css"
+import { NavLink } from 'react-router-dom'
 
-export default function Navbar(){
+export default function NavMenu(){
   return(
-  <Stack
+  /*<Stack
     direction="column"
     justify="flex-start"
     align="flex-start"
@@ -81,6 +85,22 @@ export default function Navbar(){
         </Text>
       </Stack>
     </Stack>
-  </Stack>
+  </Stack>*/
+
+<Navbar bg="light" expand="lg">
+      <Navbar.Brand href='/HomePage'>VocalAIze</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+          <Nav.Link href='/About'>About</Nav.Link>
+          </Nav>
+          <Nav className="mr-auto">
+          <Nav.Link href='/Saved'>Saved</Nav.Link>
+          </Nav>
+          <Nav className="mr-auto">
+          <Nav.Link href='/'>Logout</Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
 )
 }
