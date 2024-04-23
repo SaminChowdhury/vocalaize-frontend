@@ -1,12 +1,18 @@
-import Nav from 'react-bootstrap/Nav'
-import Navbar from 'react-bootstrap/Navbar'
-import "bootstrap/dist/css/bootstrap.min.css"
-import "../App.css"
-import { NavLink } from 'react-router-dom'
+import { Stack, Text } from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom';
 
-export default function NavMenu(){
+
+export default function Navbar(){
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();          // Clear localStorage (removes all items)
+    navigate('/LandingPage');  
+    console.log('User logged out, localStorage cleared!')         // Navigate to SignIn page
+  };
+
   return(
-  /*<Stack
+  <Stack
     direction="column"
     justify="flex-start"
     align="flex-start"
@@ -69,6 +75,7 @@ export default function NavMenu(){
           Saved
         </Text>
         <Text
+          onClick={handleLogout} 
           fontFamily="Roboto Mono"
           fontWeight="bold"
           fontSize="20px"
@@ -85,22 +92,6 @@ export default function NavMenu(){
         </Text>
       </Stack>
     </Stack>
-  </Stack>*/
-
-<Navbar bg="light" expand="lg">
-      <Navbar.Brand href='/HomePage'>VocalAIze</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">
-          <Nav.Link href='/About'>About</Nav.Link>
-          </Nav>
-          <Nav className="mr-auto">
-          <Nav.Link href='/Saved'>Saved</Nav.Link>
-          </Nav>
-          <Nav className="mr-auto">
-          <Nav.Link href='/'>Logout</Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+  </Stack>
 )
 }

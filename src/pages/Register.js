@@ -155,11 +155,13 @@ import React, { useState } from 'react';
 import {
   Container, Stack, Text, Input, Button
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent default form submission behavior
@@ -176,10 +178,12 @@ function Register() {
     })
     .then(data => {
       console.log("Registration successful", data);
-      // Redirect or further action
+      navigate('/Subscription');
+      
     })
     .catch(error => {
       console.error("Error:", error);
+      alert('failed to register');
       setError('Registration failed. Please try again.');
     });
   };
@@ -284,8 +288,6 @@ function Register() {
               height='48px'
               mt={'50px'}
               borderRadius={'5px'}
-              as={'a'}
-              href="/Subscription"
               textDecor={'none'}
               textColor={'black'}
               fontSize={'16px'}

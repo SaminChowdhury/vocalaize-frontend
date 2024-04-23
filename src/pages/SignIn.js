@@ -1,6 +1,6 @@
 import { Stack, Text, Input, Button, Container, extendTheme } from "@chakra-ui/react";
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 const breakpoints = {
   base: '0em',
@@ -16,20 +16,54 @@ const theme = extendTheme({ breakpoints })
 function SignIn(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('/api/login', { email, password });
-            console.log(response.data);
-            // Handle success, maybe redirect to another page
-        } catch (error) {
-            console.error('Error:', error.response.data);
-            // Handle error, display error message to user
+    // Perform the login request
+    fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
         }
-    };
-
-    
+        throw new Error('Failed to sign in');
+    })
+    .then(data => {
+        localStorage.setItem('token', data.token); // Store the token
+        console.log("Sign in successful");
+        // Fetch subscription status using the token
+        return fetch('http://localhost:5000/' + data.user_id + '/subscription', {
+            method: 'GET',
+            headers: { 
+                "Content-Type": "application/json",
+                "token": `${data.token}` // Assuming token is needed to access the subscription endpoint
+            }
+        });
+    })
+    .then(subscriptionResponse => {
+        if (subscriptionResponse.ok) {
+            return subscriptionResponse.json();
+        }
+        throw new Error('Failed to retrieve subscription status');
+    })
+    .then(subscriptionData => {
+        if (subscriptionData.subscription_level) {
+            navigate('/HomePage'); // Navigate to Home if subscription level exists
+        } else {
+            navigate('/Subscription'); // Navigate to Subscription page if no subscription level
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        setError('Sign in failed. Please try again.');
+    });
+};
     return(
     
     <Stack
@@ -112,6 +146,7 @@ function SignIn(){
           Password:
         </Text>
         <Input
+          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder= 'Password'
@@ -132,8 +167,6 @@ function SignIn(){
         height='48px'
         mt={'50px'}
         borderRadius={'5px'}
-        as={'a'}
-        href="/HomePage"
         textDecor={'none'}
         textColor={'black'}
         fontSize={'16px'}
@@ -141,6 +174,7 @@ function SignIn(){
           Continue
         </Button>
       </Stack>
+      {error && <div style={{ color: 'red' }}>{error}</div>}
       </form>
     </Stack>
     );
