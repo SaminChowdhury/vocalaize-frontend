@@ -1,6 +1,16 @@
 import { Stack, Text } from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom';
+
 
 export default function Navbar(){
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();          // Clear localStorage (removes all items)
+    navigate('/LandingPage');  
+    console.log('User logged out, localStorage cleared!')         // Navigate to SignIn page
+  };
+
   return(
   <Stack
     direction="column"
@@ -65,6 +75,7 @@ export default function Navbar(){
           Saved
         </Text>
         <Text
+          onClick={handleLogout} 
           fontFamily="Roboto Mono"
           fontWeight="bold"
           fontSize="20px"

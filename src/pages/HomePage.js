@@ -1,27 +1,22 @@
 import { Stack, Select, Button, Box } from '@chakra-ui/react'
 import React from 'react';
-import { useCallback, useState, useRef} from 'react';
+import { useCallback, useState, useRef, useEffect} from 'react';
 import { useDropzone } from 'react-dropzone';
 import Navbar from '../components/Navbar';
+import { useNavigate } from 'react-router-dom';
 //import useDrivePicker from 'react-google-drive-picker'
 
-
-const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    // Add more languages as needed
-  ];
-  
-  const HomePage = () => {
+const HomePage = () => {
     const [file, setFile] = useState(null);
     const [language1, setLanguage1] = useState('');
     const [language2, setLanguage2] = useState('');
+    const [languageOptions, setLanguageOptions] = useState([]);
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
   
     const onDrop = useCallback((acceptedFiles) => {
-      // Since we only accept one file, grab the first one
       const firstFile = acceptedFiles[0];
-      if (firstFile && firstFile.name.match(/\.(mp3|wav)$/)) {
+      if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
         setFile({
           name: firstFile.name,
           size: firstFile.size,
@@ -32,11 +27,53 @@ const languages = [
   
     const { getRootProps, getInputProps } = useDropzone({
       onDrop,
-      multiple: false, // Ensure only one file is accepted
+      multiple: false,
     });
+  
+    useEffect(() => {
+      const fetchLanguageOptions = async () => {
+        try {
+          const response = await fetch('http://localhost:5000/languages');
+          if (!response.ok) {
+            throw new Error('Failed to fetch language options');
+          }
+          const data = await response.json();
+          setLanguageOptions(data); // Ensure this matches the API response structure
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+  
+      fetchLanguageOptions();
+    }, []);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        fetch('http://localhost:5000/validate-token', {
+            method: 'GET',
+            headers: {
+                'token': `${token}`
+            }
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                localStorage.clear();
+                navigate('/SignIn')
+                throw new Error('Token validation failed');
+            }
+        }).then(data => {
+            console.log('Token is valid:', data);
+        }).catch(error => {
+            console.error('Error:', error);
+            navigate('/SignIn')
+        });
 
-  const fileInputRef = useRef(null);
-
+    }
+  else{
+    navigate('/SignIn');
+  }
+}, []);
   const handleFileUpload = async () => {
     const files = fileInputRef.current.files;
 
@@ -87,33 +124,35 @@ const languages = [
         align="center"
         spacing={'750px'}
       >
-        <Select
-          value={language1} onChange={(e) => setLanguage1(e.target.value)}
+       <Select
+          value={language1} 
+          onChange={(e) => setLanguage1(e.target.value)}
           size="sm"
           isDisabled={false}
           isInvalid={false}
           maxWidth="100%"
         >
           <option value="">Select Language 1</option>
-        {languages.map((lang) => (
-          <option key={lang.code} value={lang.code}>
-            {lang.name}
-          </option>
-        ))}
+          {languageOptions.map((lang) => (
+            <option key={lang.nlp_code} value={lang.nlp_code}>
+              {lang.language_name}
+            </option>
+          ))}
         </Select>
         <Select
-          value={language2} onChange={(e) => setLanguage2(e.target.value)}
+          value={language2} 
+          onChange={(e) => setLanguage2(e.target.value)}
           size="sm"
           isDisabled={false}
           isInvalid={false}
           maxWidth="100%"
         >
           <option value="">Select Language 2</option>
-        {languages.map((lang) => (
-          <option key={lang.code} value={lang.code}>
-            {lang.name}
-          </option>
-        ))}
+          {languageOptions.map((lang) => (
+            <option key={lang.nlp_code} value={lang.nlp_code}>
+              {lang.language_name}
+            </option>
+          ))}
         </Select>
       </Stack>
       <Stack

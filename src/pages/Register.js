@@ -155,11 +155,13 @@ import React, { useState } from 'react';
 import {
   Container, Stack, Text, Input, Button
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent default form submission behavior
@@ -176,10 +178,12 @@ function Register() {
     })
     .then(data => {
       console.log("Registration successful", data);
-      // Redirect or further action
+      navigate('/Subscription');
+      
     })
     .catch(error => {
       console.error("Error:", error);
+      alert('failed to register');
       setError('Registration failed. Please try again.');
     });
   };
@@ -288,7 +292,7 @@ function Register() {
               maxWidth="100%"
             />
             <Button
-              type="submit" // Make sure this is type="submit" to trigger form submission
+              type="submit" 
               size="lg"
               variant="solid"
               bg="lightgrey"
