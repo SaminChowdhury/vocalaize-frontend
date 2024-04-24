@@ -8,13 +8,14 @@ export default function Saved() {
     <div>
         <Navbar />
         <Stack
-        w='100%'
+        border={'0.5px black solid'}
         minHeight="100vh"
         direction='column'
         justify="flex-start"
         align="flex-start"
-        bg="#CBD5E0"
+        bg="#E7EEFD"
         spacing={'20px'}
+        p={'20px'}
         >
             <Box
             px={'40px'}
@@ -35,14 +36,15 @@ export default function Saved() {
                 w={'100%'}
                 h={'50px'}
                 bg={'ivory'}
-                borderRadius={'8px'}
+                borderRadius={'10px'}
                 fontFamily="Roboto Mono"
                 fontWeight="bold"
                 fontSize="15px"
                 color="#000000"
                 maxWidth="100%"
+                _hover={{ shadow : '0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'}}
                 >
-                sample.wav
+                example.wav
                 </Box>
             </Box>
         </Stack>

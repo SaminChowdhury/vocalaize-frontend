@@ -17,13 +17,14 @@ export default function About() {
         <div>
         <NavBar />
         <Stack
-        w='100%'
+        border={'0.5px black solid'}
         minHeight="100vh"
         direction='column'
         justify="flex-start"
         align="center"
-        bg="#CBD5E0"
+        bg="#E7EEFD"
         spacing={'20px'}
+        p={'20px'}
         >
             <Box
             px={'40px'}

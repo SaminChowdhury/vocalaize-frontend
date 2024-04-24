@@ -153,9 +153,10 @@ export default Register;
 
 import React, { useState } from 'react';
 import {
-  Container, Stack, Text, Input, Button
+  Container, Stack, Text, Input, Button, Image
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import logo from "../images/logo.png"
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -190,47 +191,53 @@ function Register() {
 
   return (
     <Stack
-    minHeight={'130vh'}
+    minHeight={'100vh'}
     direction="column"
-    justify="flex-start" 
+    justify="center" 
     align="center" 
-    bg="#CBD5E0"
+    bg="#E7EEFD"
     >
-        <Text
-          fontFamily="Roboto Mono"
-          fontWeight="bold"
-          fontSize="64px"
-          color="#000000"
-          mt={'20px'}
+      <form onSubmit={handleSubmit}>
+        <Stack
+        m={'20px'}
+        w='300px'
+        p={'50px'}
+        direction={'column'}
+        justify={'flex-start'}
+        align={'center'}
+        borderRadius="20px"
+        shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
+        background="rgba(137, 172, 212, 0.3)"
         >
-          VocalAIze
-        </Text>
-        <form onSubmit={handleSubmit}>
-          <Stack
-            w='300px'
-            p={'50px'}
-            direction={'column'}
-            justify={'flex-start'}
-            align={'flex-start'}
-            borderRadius="10px"
-            background="rgba(137, 172, 212, 0.3)"
-          >
+        
+        <Image
+            boxSize={'200px'}
+            src={logo}
+            alt='VocalAIze Logo'
+            mt={'-30px'}
+            />
+        
+          <Stack>
             <Text
               fontFamily="Roboto Mono"
               fontWeight="bold"
               fontSize="25px"
-              color="#000000"
-              height="0px"
+              color="#304289"
+              height={"0px"}
               mt={'0px'}
+              textShadow= '-0.2px -0.2px 0 #000, 0.2px -0.2px 0 #000, -0.2px 0.2px 0 #000, 0.2px 0.2px 0 #000'
             >
               Create an account
-            </Text><br/>
+            </Text>
             <Text
               fontFamily="Roboto Mono"
               fontWeight="bold"
               fontSize="15px"
-              color="#000000"
+              color="#304289"
               maxWidth="100%"
+              height={"0px"}
+              mt={'10px'}
+              pb={'10px'}
             >
               Already a user?<br/>
               <Text as="a" href="/SignIn">Sign in</Text>
@@ -239,9 +246,9 @@ function Register() {
               fontFamily="Roboto Mono"
               fontWeight="bold"
               fontSize="20px"
-              color="#000000"
-              height="20px"
+              color="#304289"
               maxWidth="100%"
+              textShadow= '-0.1px -0.1px 0 #000, 0.1px -0.1px 0 #000, -0.1px 0.1px 0 #000, 0.1px 0.1px 0 #000'
             >
               Email Address:
             </Text>
@@ -254,16 +261,18 @@ function Register() {
               variant="outline"
               width="200px"
               height="30px"
-              borderRadius={'8px'}
+              borderRadius={'10px'}
+              mb={'0px'}
+              shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
             />
             <Text
               fontFamily="Roboto Mono"
               fontWeight="bold"
               fontSize="20px"
-              color="#000000"
+              color="#304289"
               height="20px"
-              marginTop="30px"
               maxWidth="100%"
+              textShadow= '-0.1px -0.1px 0 #000, 0.1px -0.1px 0 #000, -0.1px 0.1px 0 #000, 0.1px 0.1px 0 #000'
             >
               Password:
             </Text>
@@ -277,26 +286,29 @@ function Register() {
               width="200px"
               height="30px"
               maxWidth="100%"
-              borderRadius={'8px'}
+              borderRadius={'10px'}
+              shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
             />
             <Button
               type='submit'
               size="lg" 
               variant="solid" 
-              bg={'#89ACD4'}  
+              bg={'#304289'}   
               px={'7px'}
               height='48px'
-              mt={'50px'}
-              borderRadius={'5px'}
+              mt={'40px'}
+              borderRadius={'20px'}
+              borderStyle={'none'}
               textDecor={'none'}
-              textColor={'black'}
+              textColor={'#ffffff'}
               fontSize={'16px'}
-              border={'1px solid black'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
             >
               Continue
             </Button>
           </Stack>
           {error && <div style={{ color: 'red' }}>{error}</div>}
+        </Stack>
         </form>
       </Stack>
   );

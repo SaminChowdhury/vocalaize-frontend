@@ -1,10 +1,17 @@
-import { Stack, Select, Button, Box } from '@chakra-ui/react'
+import { Stack, Select, Button, Box, Input } from '@chakra-ui/react'
 import React from 'react';
 import { useCallback, useState, useRef, useEffect} from 'react';
 import { useDropzone } from 'react-dropzone';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 //import useDrivePicker from 'react-google-drive-picker'
+
+let gumStream = null;
+let recorder = null;
+let audioContext = null;
+
+
     const HomePage = () => {
     const [file, setFile] = useState(null);
     const [language1, setLanguage1] = useState('');
@@ -142,13 +149,68 @@ import { useNavigate } from 'react-router-dom';
       document.body.appendChild(script);
     }
   }, [showAds]);
+
+  const startRecording = () => {
+    let constraints = {
+        audio: true,
+        video: false
+    }
+
+    audioContext = new window.AudioContext();
+    console.log("sample rate: " + audioContext.sampleRate);
+
+    navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then(function (stream) {
+            console.log("initializing Recorder.js ...");
+
+            gumStream = stream;
+
+            let input = audioContext.createMediaStreamSource(stream);
+
+            recorder = new window.Recorder(input, {
+                numChannels: 1
+            })
+
+            recorder.record();
+            console.log("Recording started");
+        }).catch(function (err) {
+            //enable the record button if getUserMedia() fails
+    });
+
+}
+
+const stopRecording = () => {
+    console.log("stopButton clicked");
+
+    recorder.stop(); //stop microphone access
+    gumStream.getAudioTracks()[0].stop();
+
+    recorder.exportWAV(onStop);
+}
+
+const onStop = (blob) => {
+    console.log("uploading...");
+
+    let data = new FormData();
+
+    data.append('text', "this is the transcription of the audio file");
+    data.append('wavfile', blob, "recording.wav");
+
+    const config = {
+        headers: {'content-type': 'multipart/form-data'}
+    }
+    //axios.post('http://localhost:server', data, config);
+}
+
   return (
     <div>
       <Navbar />
-      <Stack minHeight="100vh" direction="column" justify="flex-start" align="center" overflow="hidden" bg="#CBD5E0">
+      <Stack border={'0.5px black solid'} minHeight="100vh" direction="column" justify="flex-start" align="center" overflow="hidden" bg="#E7EEFD">
         <Stack direction="column" justify="flex-start" align="center">
           <Stack pt={'50px'} pb={'20px'} direction="row" justify="flex-start" align="center" spacing={'750px'}>
             <Select
+              variant='filled'
               value={language1} 
               onChange={(e) => setLanguage1(e.target.value)}
               size="sm"
@@ -156,7 +218,8 @@ import { useNavigate } from 'react-router-dom';
               isInvalid={false}
               maxWidth="100%"
               h={'30px'}
-              borderRadius={'8px'}
+              borderRadius={'10px'}
+              shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
             >
               <option value="">Select Language 1</option>
               {languageOptions.map((lang) => (
@@ -166,6 +229,7 @@ import { useNavigate } from 'react-router-dom';
               ))}
             </Select>
             <Select
+              variant='filled'
               value={language2} 
               onChange={(e) => setLanguage2(e.target.value)}
               size="sm"
@@ -173,7 +237,8 @@ import { useNavigate } from 'react-router-dom';
               isInvalid={false}
               maxWidth="100%"
               h={'30px'}
-              borderRadius={'8px'}
+              borderRadius={'10px'}
+              shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
             >
               <option value="">Select Language 2</option>
               {languageOptions.map((lang) => (
@@ -183,44 +248,138 @@ import { useNavigate } from 'react-router-dom';
               ))}
             </Select>
           </Stack>
-          <Stack p={'80px'} borderRadius="10px" direction="column" justify="flex-start" align="flex-start" spacing="10px" overflow="hidden" maxWidth="100%" background="rgba(137, 172, 212, 0.3)">
-            <Stack direction="row" justify="flex-start" align="center">
-              <input type='file' multiple ref={fileInputRef} />
-              <Button onClick={handleFileUpload} size="lg" variant="solid" bg={'lightgrey'} borderRadius={'5px'}
-          h={'38px'}
+          <Stack 
+          p={'80px'} 
+          borderRadius="10px" 
+          direction="column" 
+          justify="flex-start" 
+          align="flex-start" 
+          spacing="10px" 
+          overflow="hidden" 
+          maxWidth="100%" 
+          shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
+          bg="rgba(137, 172, 212, 0.3)"
+
           >
+            <Stack direction="row" justify="flex-start" align="center">
+              
+            <Input 
+            fontSize={'18px'}
+            type='file' 
+            multiple ref={fileInputRef}
+              />
+              <Button 
+              onClick={handleFileUpload}
+               size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               px={'7px'}
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
             Translate
               </Button>
-              <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'250px'} />
-              <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'} mr={'20px'} h={'38px'}>
+              <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
+              <Button 
+              onClick={startRecording}
+              size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
+                Start
+              </Button>
+              <Button 
+              onClick={stopRecording}
+              size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
+                Stop
+              </Button>
+              <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
+              <Button size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
                 Play
               </Button>
-              <Button size="lg" variant="solid" bg={'white'} borderRadius={'5px'} p={'5px'} mr={'50px'} h={'38px'}>
+              <Button size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
                 Pause
               </Button>
             </Stack>
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
             <Button size="lg" 
-              variant="solid" 
-              h={'38px'}
-              bg={'#89ACD4'}  
-              px={'7px'}
-              borderRadius={'5px'}
+               variant="solid" 
+               height='48px'
+               bg={'#ffffff'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#000000'}
               fontSize={'16px'}
-              border={'1px solid black'}>
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
               Save
             </Button>
             <Button 
               size="lg" 
               variant="solid" 
-              h={'38px'}
-              bg={'#89ACD4'}  
-              px={'7px'}
-              borderRadius={'5px'}
-              fontSize={'16px'}
-              border={'1px solid black'}
-              >
+              height='48px'
+              bg={'#ffffff'} 
+              borderRadius={'20px'}
+             borderStyle={'none'}
+             textDecor={'none'}
+             textColor={'#000000'}
+             fontSize={'16px'}
+             px={'7px'}
+             w={'80px'}
+             _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+             >
               Share
             </Button>
           </Stack>
