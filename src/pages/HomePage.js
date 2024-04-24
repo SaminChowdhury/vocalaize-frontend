@@ -14,27 +14,15 @@ import { useNavigate } from 'react-router-dom';
     const fileInputRef = useRef(null);
     const [subscriptionLevel, setSubscriptionLevel] = useState('');
     const [showAds, setShowAds] = useState(false);
-  
-    const onDrop = useCallback((acceptedFiles) => {
-      const firstFile = acceptedFiles[0];
-      if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
-        setFile({
-          name: firstFile.name,
-          size: firstFile.size,
-          type: firstFile.type,
-        });
-      }
-    }, []);
-  
-    const { getRootProps, getInputProps } = useDropzone({
-      onDrop,
-      multiple: false,
-    });
-  
+    const [userId, setUserId] = useState(null);
+    
+
+//Language Dropdown Menus
+
     useEffect(() => {
       const fetchLanguageOptions = async () => {
         try {
-          const response = await fetch('http://127.0.0.1:5000/languages');
+          const response = await fetch('http://20.9.240.176:5000/languages');
           if (!response.ok) {
             throw new Error('Failed to fetch language options');
           }
@@ -47,10 +35,13 @@ import { useNavigate } from 'react-router-dom';
   
       fetchLanguageOptions();
     }, []);
+
+//Token Checking
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('http://127.0.0.1:5000/validate-token', {
+        fetch('http://20.9.240.176:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -65,6 +56,7 @@ import { useNavigate } from 'react-router-dom';
             }
         }).then(data => {
             console.log('Token is valid:', data);
+            setUserId(data.user_info.user_id);
         }).catch(error => {
             console.error('Error:', error);
             navigate('/SignIn')
@@ -75,37 +67,65 @@ import { useNavigate } from 'react-router-dom';
     navigate('/SignIn');
   }
 }, []);
-  const handleFileUpload = async () => {
-    const files = fileInputRef.current.files;
 
-    if (files.length > 0){
-      const formData = new FormData();
+useEffect(() => {
+  if (userId) {
+    checkSubscriptionLevel(userId);
+  }
+}, [userId]);
 
-      for(let i=0;i<files.length;i++){
-        formData.append("files",files[i]);
-      }
+//File Upload and Translation Operations
 
-      try{
-          const response = await fetch("http://127.0.0.1:5005/upload", {
-            method: 'POST',
-            body: formData
-          })
+const onDrop = useCallback((acceptedFiles) => {
+  const firstFile = acceptedFiles[0];
+  if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
+    setFile({
+      name: firstFile.name,
+      size: firstFile.size,
+      type: firstFile.type,
+    });
+  }
+}, []);
 
-        const data = await response.json()
-        console.log("uploaded files: ", data.files)
-      }
+const { getRootProps, getInputProps } = useDropzone({
+  onDrop,
+  multiple: false,
+});
 
-      catch(error){
-        console.log("error")
-      }
+const handleFileUpload = async () => {
+  const files = fileInputRef.current.files;
+
+  if (files.length > 0){
+    const formData = new FormData();
+
+    for(let i=0;i<files.length;i++){
+      formData.append("files",files[i]);
+    }
+
+    try{
+        const response = await fetch("http://20.9.240.176:5005/upload", {
+          method: 'POST',
+          body: formData
+        })
+
+      const data = await response.json()
+      console.log("uploaded files: ", data.files)
+    }
+
+    catch(error){
+      console.log("error")
     }
   }
+}
+
+//Subscription Level Checking and Ads
 
   const checkSubscriptionLevel = async (userId) => {
     const token = localStorage.getItem('token');
+    console.log('User id before fetch is ' + userId);
     if (token) {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/26/subscription`, {
+        const response = await fetch(`http://20.9.240.176:5000/${userId}/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
@@ -124,24 +144,29 @@ import { useNavigate } from 'react-router-dom';
         } else {
           setShowAds(false);
           console.error('Failed to update subscription level:', response.statusText);
-          console.log('check2')
         }
       } catch (error) {
         console.error('Error updating subscription level:', error);
       }
     }
   }  
+
+  
   useEffect(() => {
-    checkSubscriptionLevel();
-    if (showAds) {
-      // Load Google AdSense script dynamically
-      const script = document.createElement('script');
-      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
-      script.crossOrigin = "anonymous";
-      script.async = true;
-      document.body.appendChild(script);
-    }
+      checkSubscriptionLevel(userId);
+      if (showAds) {
+        // Load Google AdSense script dynamically
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
+        script.crossOrigin = "anonymous";
+        script.async = true;
+        document.body.appendChild(script);
+        console.log('when calling ads:' + userId)
+      }
   }, [showAds]);
+
+//HTML AND CSS
+
   return (
     <div>
       <Navbar />
