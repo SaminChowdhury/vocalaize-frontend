@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
     useEffect(() => {
       const fetchLanguageOptions = async () => {
         try {
-          const response = await fetch('http://20.9.240.176:5000/languages');
+          const response = await fetch('https://20.9.240.176:5000/languages');
           if (!response.ok) {
             throw new Error('Failed to fetch language options');
           }
@@ -41,7 +41,7 @@ import { useNavigate } from 'react-router-dom';
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('http://20.9.240.176:5000/validate-token', {
+        fetch('https://20.9.240.176:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -103,7 +103,7 @@ const handleFileUpload = async () => {
     }
 
     try{
-        const response = await fetch("http://20.9.240.176:5005/upload", {
+        const response = await fetch("https://20.9.240.176:5005/upload", {
           method: 'POST',
           body: formData
         })
@@ -125,7 +125,7 @@ const handleFileUpload = async () => {
     console.log('User id before fetch is ' + userId);
     if (token) {
       try {
-        const response = await fetch(`http://20.9.240.176:5000/${userId}/subscription`, {
+        const response = await fetch(`https://20.9.240.176:5000/${userId}/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
