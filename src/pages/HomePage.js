@@ -34,7 +34,7 @@ import { useNavigate } from 'react-router-dom';
     useEffect(() => {
       const fetchLanguageOptions = async () => {
         try {
-          const response = await fetch('http://localhost:5000/languages');
+          const response = await fetch('http://127.0.0.1:5000/languages');
           if (!response.ok) {
             throw new Error('Failed to fetch language options');
           }
@@ -50,7 +50,7 @@ import { useNavigate } from 'react-router-dom';
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('http://localhost:5000/validate-token', {
+        fetch('http://127.0.0.1:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -86,7 +86,7 @@ import { useNavigate } from 'react-router-dom';
       }
 
       try{
-          const response = await fetch("http://localhost:5005/upload", {
+          const response = await fetch("http://127.0.0.1:5005/upload", {
             method: 'POST',
             body: formData
           })
@@ -105,7 +105,7 @@ import { useNavigate } from 'react-router-dom';
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch(`http://localhost:5000/26/subscription`, {
+        const response = await fetch(`http://127.0.0.1:5000/26/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',

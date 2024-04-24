@@ -165,7 +165,7 @@ function Register() {
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent default form submission behavior
-    fetch('http://localhost:5000/signup', {
+    fetch('http://127.0.0.1:5000/signup', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })

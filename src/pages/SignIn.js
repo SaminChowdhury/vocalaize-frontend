@@ -23,7 +23,7 @@ function SignIn(){
     event.preventDefault();
 
     // Perform the login request
-    fetch('http://localhost:5000/login', {
+    fetch('http://127.0.0.1:5000/login', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -38,7 +38,7 @@ function SignIn(){
         localStorage.setItem('token', data.token); // Store the token
         console.log("Sign in successful");
         // Fetch subscription status using the token
-        return fetch('http://localhost:5000/' + data.user_id + '/subscription', {
+        return fetch('http://127.0.0.1:5000/' + data.user_id + '/subscription', {
             method: 'GET',
             headers: { 
                 "Content-Type": "application/json",
