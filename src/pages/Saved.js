@@ -1,12 +1,12 @@
 import { Stack, Text, Box } from "@chakra-ui/react"
-import NavMenu from "../components/NavMenu"
+import Navbar from "../components/Navbar"
 
 export default function Saved() {
 
 
     return(
     <div>
-        <NavMenu />
+        <Navbar />
         <Stack
         w='100%'
         minHeight="100vh"

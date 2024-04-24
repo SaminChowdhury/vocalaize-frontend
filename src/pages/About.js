@@ -1,5 +1,5 @@
 import { Stack, Text, Box, extendTheme } from '@chakra-ui/react';
-import NavMenu from '../components/NavMenu';
+import NavBar from '../components/Navbar';
 
 const breakpoints = {
     base: '0em',
@@ -15,7 +15,7 @@ const theme = extendTheme({ breakpoints })
 export default function About() {
     return(
         <div>
-        <NavMenu />
+        <NavBar />
         <Stack
         w='100%'
         minHeight="100vh"
