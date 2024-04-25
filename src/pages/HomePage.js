@@ -22,14 +22,14 @@ let audioContext = null;
     const [subscriptionLevel, setSubscriptionLevel] = useState('');
     const [showAds, setShowAds] = useState(false);
     const [userId, setUserId] = useState(null);
-    
+    const [user, setUser] = useState({ id: null });
 
 //Language Dropdown Menus
 
     useEffect(() => {
       const fetchLanguageOptions = async () => {
         try {
-          const response = await fetch('https://20.9.240.176:5000/languages');
+          const response = await fetch('http://20.9.240.176:5000/languages');
           if (!response.ok) {
             throw new Error('Failed to fetch language options');
           }
@@ -48,7 +48,7 @@ let audioContext = null;
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('https://20.9.240.176:5000/validate-token', {
+        fetch('http://20.9.240.176:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -98,33 +98,68 @@ const { getRootProps, getInputProps } = useDropzone({
   onDrop,
   multiple: false,
 });
+ // Token validation to get user ID
+ useEffect(() => {
+  const validateToken = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token available.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://20.9.240.176:5000/validate-token', {
+        method: 'GET',
+        headers: {
+          'token': `${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Token validation failed.');
+
+      const data = await response.json();
+      setUser({ id: data.user_info.user_id });
+    } catch (error) {
+      console.error('Error validating token:', error);
+    }
+  };
+
+  validateToken();
+}, []);
+
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
+};
 
 const handleFileUpload = async () => {
-  const files = fileInputRef.current.files;
-
-  if (files.length > 0){
-    const formData = new FormData();
-
-    for(let i=0;i<files.length;i++){
-      formData.append("files",files[i]);
-    }
-
-    try{
-        const response = await fetch("https://20.9.240.176:5005/upload", {
-          method: 'POST',
-          body: formData
-        })
-
-      const data = await response.json()
-      console.log("uploaded files: ", data.files)
-    }
-
-    catch(error){
-      console.log("error")
-    }
+  if (!file || !user.id || !language1 || !language2) {
+    alert("Please ensure a file is selected and all form fields are filled.");
+    return;
   }
-}
 
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('user_id', user.id);
+  formData.append('source_language', language1);
+  formData.append('target_language', language2);
+
+  try {
+    const response = await fetch('http://20.9.240.176:5000/upload-audio', {
+      method: 'POST',
+      body: formData,
+      headers: {
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to upload file.');
+
+    const data = await response.json();
+    alert('File uploaded and translation created, ID: ' + data.translation_id);
+  } catch (error) {
+    console.error('Error during file upload:', error);
+    alert('Error during file upload: ' + error.message);
+  }
+};
 //Subscription Level Checking and Ads
 
   const checkSubscriptionLevel = async (userId) => {
@@ -132,7 +167,7 @@ const handleFileUpload = async () => {
     console.log('User id before fetch is ' + userId);
     if (token) {
       try {
-        const response = await fetch(`https://20.9.240.176:5000/${userId}/subscription`, {
+        const response = await fetch(`http://20.9.240.176:5000/${userId}/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
@@ -248,7 +283,7 @@ const onStop = (blob) => {
             >
               <option value="">Select Language 1</option>
               {languageOptions.map((lang) => (
-                <option key={lang.nlp_code} value={lang.nlp_code}>
+                <option key={lang.language_name} value={lang.language_name}>
                   {lang.language_name}
                 </option>
               ))}
@@ -267,7 +302,7 @@ const onStop = (blob) => {
             >
               <option value="">Select Language 2</option>
               {languageOptions.map((lang) => (
-                <option key={lang.nlp_code} value={lang.nlp_code}>
+                <option key={lang.language_name} value={lang.language_name}>
                   {lang.language_name}
                 </option>
               ))}
@@ -291,7 +326,8 @@ const onStop = (blob) => {
             <Input 
             fontSize={'18px'}
             type='file' 
-            multiple ref={fileInputRef}
+            onChange={handleFileChange}
+            size="md"
               />
               <Button 
               onClick={handleFileUpload}
