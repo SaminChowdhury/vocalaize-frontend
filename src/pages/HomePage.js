@@ -22,14 +22,13 @@ let audioContext = null;
     const [subscriptionLevel, setSubscriptionLevel] = useState('');
     const [showAds, setShowAds] = useState(false);
     const [userId, setUserId] = useState(null);
-    
 
 //Language Dropdown Menus
 
     useEffect(() => {
       const fetchLanguageOptions = async () => {
         try {
-          const response = await fetch('https://20.9.240.176:5000/languages');
+          const response = await fetch('http://127.0.0.1:5000/languages');
           if (!response.ok) {
             throw new Error('Failed to fetch language options');
           }
@@ -48,7 +47,7 @@ let audioContext = null;
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('https://20.9.240.176:5000/validate-token', {
+        fetch('http://127.0.0.1:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -101,16 +100,18 @@ const { getRootProps, getInputProps } = useDropzone({
 
 const handleFileUpload = async () => {
   const files = fileInputRef.current.files;
+  console.log("Uploading file:", files[0]);
 
   if (files.length > 0){
     const formData = new FormData();
 
     for(let i=0;i<files.length;i++){
       formData.append("files",files[i]);
+      console.log("Appending!:");
     }
 
     try{
-        const response = await fetch("https://20.9.240.176:5005/upload", {
+        const response = await fetch("http://127.0.0.1:5000/upload", {
           method: 'POST',
           body: formData
         })
@@ -132,7 +133,7 @@ const handleFileUpload = async () => {
     console.log('User id before fetch is ' + userId);
     if (token) {
       try {
-        const response = await fetch(`https://20.9.240.176:5000/${userId}/subscription`, {
+        const response = await fetch(`http://127.0.0.1:5000/${userId}/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
@@ -226,6 +227,38 @@ const onStop = (blob) => {
 }
 
 
+// Play and Pause Audio
+const playAudio = () => {
+  console.log('Playing audio')
+
+  const files = fileInputRef.current.files;
+
+  if (files.length > 0) {
+    console.log("File selected:", files[0]);
+
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    audioPlayer.src = URL.createObjectURL(files[0]);
+    console.log("Audio source set:", audioPlayer.src);
+
+    audioPlayer.load();
+    audioPlayer.play();
+
+    audioPlayer.onplay = () => console.log("Audio is now playing.");
+    audioPlayer.onerror = () => console.error("Error occurred while trying to play the audio.");
+  }
+  else {
+    console.log("No file selected.", files);
+  }
+};
+
+const pauseAudio = () => {
+  const audioPlayer = document.getElementById('audioPlayer');
+  if (audioPlayer && !audioPlayer.paused) {
+    audioPlayer.pause();
+  }
+};
+
 //HTML AND CSS
 
   return (
@@ -293,6 +326,40 @@ const onStop = (blob) => {
             type='file' 
             multiple ref={fileInputRef}
               />
+              <audio id="audioPlayer" controls hidden></audio>
+              <Button 
+              onClick={playAudio} // Play uploaded audio file
+              size="lg" 
+              variant="solid" 
+              height='48px'
+              bg={'#304289'} 
+              borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
+                Play
+              </Button>
+              <Button 
+              onClick={pauseAudio} // Pause uploaded audio file
+              size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
+                Pause
+              </Button>
               <Button 
               onClick={handleFileUpload}
                size="lg" 

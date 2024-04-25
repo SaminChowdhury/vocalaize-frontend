@@ -11,7 +11,7 @@ function Subscription() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('https://20.9.240.176:5000/validate-token', {
+        fetch('http://127.0.0.1:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}` // Make sure you use the Authorization header
@@ -42,7 +42,7 @@ function Subscription() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (userId) {
-        fetch(`https://20.9.240.176:5000/user/${userId}/subscription`, {
+        fetch(`http://127.0.0.1:5000/user/${userId}/subscription`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscription_level: subscriptionLevel })
