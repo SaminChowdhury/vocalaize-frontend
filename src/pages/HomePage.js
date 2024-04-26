@@ -319,22 +319,23 @@ const HomePage = () => {
 
   // Share Button
   const handleShare = async () => {
-    // Translated audio file
-    const file = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; //Filler audio
-
-    if(navigator.share){
+    console.log('Sharing translation');
+  
+    const fileUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // Change to translated audio
+    if (navigator.share) {
       try {
         await navigator.share({
           title: 'Vocalaize Translation',
           text: 'Check out this translation!',
-          files: [file]
+          url: fileUrl // Change to translated audio
         });
-        console.log('Successfully shared the translation!');
+        console.log('Successful share prompt');
       } catch (error) {
         console.error('Error sharing the translation:', error);
       }
+    } else {
+      alert('Web share not supported on this browser.');
     }
-
   };
 
   //HTML AND CSS
