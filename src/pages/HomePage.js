@@ -18,17 +18,6 @@ const HomePage = () => {
   const [showAds, setShowAds] = useState(false);
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState({ id: null });
-const HomePage = () => {
-  const [file, setFile] = useState(null);
-  const [language1, setLanguage1] = useState('');
-  const [language2, setLanguage2] = useState('');
-  const [languageOptions, setLanguageOptions] = useState([]);
-  const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-  const [subscriptionLevel, setSubscriptionLevel] = useState('');
-  const [showAds, setShowAds] = useState(false);
-  const [userId, setUserId] = useState(null);
-  const [user, setUser] = useState({ id: null });
 
   //Language Dropdown Menus
   useEffect(() => {
@@ -96,10 +85,6 @@ const HomePage = () => {
       navigate('/SignIn');
     }
   }, []);
-    else{
-      navigate('/SignIn');
-    }
-  }, []);
 
   useEffect(() => {
     if (userId) {
@@ -112,17 +97,6 @@ const HomePage = () => {
     }
   }, [userId]);
 
-  //File Dropzone
-  const onDrop = useCallback((acceptedFiles) => {
-    const firstFile = acceptedFiles[0];
-    if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
-      setFile({
-        name: firstFile.name,
-        size: firstFile.size,
-        type: firstFile.type,
-      });
-    }
-  }, []);
   //File Dropzone
   const onDrop = useCallback((acceptedFiles) => {
     const firstFile = acceptedFiles[0];
