@@ -7,43 +7,66 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 //import useDrivePicker from 'react-google-drive-picker'
 
-let gumStream = null;
-let recorder = null;
-let audioContext = null;
+const HomePage = () => {
+  const [file, setFile] = useState(null);
+  const [language1, setLanguage1] = useState('');
+  const [language2, setLanguage2] = useState('');
+  const [languageOptions, setLanguageOptions] = useState([]);
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [subscriptionLevel, setSubscriptionLevel] = useState('');
+  const [showAds, setShowAds] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState({ id: null });
+const HomePage = () => {
+  const [file, setFile] = useState(null);
+  const [language1, setLanguage1] = useState('');
+  const [language2, setLanguage2] = useState('');
+  const [languageOptions, setLanguageOptions] = useState([]);
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [subscriptionLevel, setSubscriptionLevel] = useState('');
+  const [showAds, setShowAds] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState({ id: null });
 
-
-    const HomePage = () => {
-    const [file, setFile] = useState(null);
-    const [language1, setLanguage1] = useState('');
-    const [language2, setLanguage2] = useState('');
-    const [languageOptions, setLanguageOptions] = useState([]);
-    const navigate = useNavigate();
-    const fileInputRef = useRef(null);
-    const [subscriptionLevel, setSubscriptionLevel] = useState('');
-    const [showAds, setShowAds] = useState(false);
-    const [userId, setUserId] = useState(null);
-
-//Language Dropdown Menus
-
-    useEffect(() => {
-      const fetchLanguageOptions = async () => {
-        try {
-          const response = await fetch('http://127.0.0.1:5000/languages');
-          if (!response.ok) {
-            throw new Error('Failed to fetch language options');
-          }
-          const data = await response.json();
-          setLanguageOptions(data); // Ensure this matches the API response structure
-        } catch (error) {
-          console.error('Error:', error);
+  //Language Dropdown Menus
+  useEffect(() => {
+    const fetchLanguageOptions = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/languages');
+        if (!response.ok) {
+          throw new Error('Failed to fetch language options');
         }
-      };
-  
-      fetchLanguageOptions();
-    }, []);
+        const data = await response.json();
+        setLanguageOptions(data); // Ensure this matches the API response structure
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
 
-//Token Checking
+    fetchLanguageOptions();
+  }, []);
+  //Language Dropdown Menus
+  useEffect(() => {
+    const fetchLanguageOptions = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/languages');
+        if (!response.ok) {
+          throw new Error('Failed to fetch language options');
+        }
+        const data = await response.json();
+        setLanguageOptions(data); // Ensure this matches the API response structure
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
 
+    fetchLanguageOptions();
+  }, []);
+
+  //Token Checking
+  //Token Checking
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -69,65 +92,120 @@ let audioContext = null;
         });
 
     }
-  else{
-    navigate('/SignIn');
-  }
-}, []);
+    else{
+      navigate('/SignIn');
+    }
+  }, []);
+    else{
+      navigate('/SignIn');
+    }
+  }, []);
 
-useEffect(() => {
-  if (userId) {
-    checkSubscriptionLevel(userId);
-  }
-}, [userId]);
+  useEffect(() => {
+    if (userId) {
+      checkSubscriptionLevel(userId);
+    }
+  }, [userId]);
+  useEffect(() => {
+    if (userId) {
+      checkSubscriptionLevel(userId);
+    }
+  }, [userId]);
 
-//File Upload and Translation Operations
+  //File Dropzone
+  const onDrop = useCallback((acceptedFiles) => {
+    const firstFile = acceptedFiles[0];
+    if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
+      setFile({
+        name: firstFile.name,
+        size: firstFile.size,
+        type: firstFile.type,
+      });
+    }
+  }, []);
+  //File Dropzone
+  const onDrop = useCallback((acceptedFiles) => {
+    const firstFile = acceptedFiles[0];
+    if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
+      setFile({
+        name: firstFile.name,
+        size: firstFile.size,
+        type: firstFile.type,
+      });
+    }
+  }, []);
 
-const onDrop = useCallback((acceptedFiles) => {
-  const firstFile = acceptedFiles[0];
-  if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
-    setFile({
-      name: firstFile.name,
-      size: firstFile.size,
-      type: firstFile.type,
-    });
-  }
-}, []);
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    multiple: false,
+  });
 
-const { getRootProps, getInputProps } = useDropzone({
-  onDrop,
-  multiple: false,
-});
+  // Token validation to get user ID
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("No token available.");
+        return;
+      }
 
-const handleFileUpload = async () => {
-  const files = fileInputRef.current.files;
-  console.log("Uploading file:", files[0]);
+      try {
+        const response = await fetch('http://127.0.0.1:5000/validate-token', {
+          method: 'GET',
+          headers: {
+            'token': `${token}`
+          }
+        });
 
-  if (files.length > 0){
+        if (!response.ok) throw new Error('Token validation failed.');
+
+        const data = await response.json();
+        setUser({ id: data.user_info.user_id });
+      } catch (error) {
+        console.error('Error validating token:', error);
+      }
+    };
+
+    validateToken();
+  }, []);
+
+  //Change File
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  //File Upload and Translation
+  const handleFileUpload = async () => {
+    if (!file || !user.id || !language1 || !language2) {
+      alert("Please ensure a file is selected and all form fields are filled.");
+      return;
+    }
+
     const formData = new FormData();
+    formData.append('file', file);
+    formData.append('user_id', user.id);
+    formData.append('source_language', language1);
+    formData.append('target_language', language2);
 
-    for(let i=0;i<files.length;i++){
-      formData.append("files",files[i]);
-      console.log("Appending!:");
+    try {
+      const response = await fetch('http://127.0.0.1:5000/upload-audio', {
+        method: 'POST',
+        body: formData,
+        headers: {
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to upload file.');
+
+      const data = await response.json();
+      alert('File uploaded and translation created, ID: ' + data.translation_id);
+    } catch (error) {
+      console.error('Error during file upload:', error);
+      alert('Error during file upload: ' + error.message);
     }
+  };
 
-    try{
-        const response = await fetch("http://127.0.0.1:5000/upload", {
-          method: 'POST',
-          body: formData
-        })
-
-      const data = await response.json()
-      console.log("uploaded files: ", data.files)
-    }
-
-    catch(error){
-      console.log("error")
-    }
-  }
-}
-
-//Subscription Level Checking and Ads
-
+  //Subscription Level Checking and Ads
   const checkSubscriptionLevel = async (userId) => {
     const token = localStorage.getItem('token');
     console.log('User id before fetch is ' + userId);
@@ -139,8 +217,8 @@ const handleFileUpload = async () => {
             'Content-Type': 'application/json',
             'token': `${token}`
           },
-        });
-  
+          });
+
         if (response.ok) {
           const data = await response.json();
           // Check if the subscription level is 'Free Tier' in the response
@@ -159,19 +237,23 @@ const handleFileUpload = async () => {
     }
   }  
 
-  
   useEffect(() => {
-      checkSubscriptionLevel(userId);
-      if (showAds) {
-        // Load Google AdSense script dynamically
-        const script = document.createElement('script');
-        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
-        script.crossOrigin = "anonymous";
-        script.async = true;
-        document.body.appendChild(script);
-        console.log('when calling ads:' + userId)
-      }
+    checkSubscriptionLevel(userId);
+    if (showAds) {
+      // Load Google AdSense script dynamically
+      const script = document.createElement('script');
+      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
+      script.crossOrigin = "anonymous";
+      script.async = true;
+      document.body.appendChild(script);
+      console.log('when calling ads:' + userId)
+    }
   }, [showAds]);
+
+  // Audio Recording
+  let gumStream;
+  let mediaRecorder;
+  let audioChunks = [];
 
   const startRecording = () => {
     let constraints = {
@@ -179,87 +261,109 @@ const handleFileUpload = async () => {
         video: false
     }
 
-    audioContext = new window.AudioContext();
-    console.log("sample rate: " + audioContext.sampleRate);
+    navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+      console.log("Starting recording");
 
-    navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then(function (stream) {
-            console.log("initializing Recorder.js ...");
+      gumStream = stream;
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
 
-            gumStream = stream;
+      mediaRecorder.addEventListener("dataavailable", event => {
+        audioChunks.push(event.data);
+      });
 
-            let input = audioContext.createMediaStreamSource(stream);
-
-            recorder = new window.Recorder(input, {
-                numChannels: 1
-            })
-
-            recorder.record();
-            console.log("Recording started");
-        }).catch(function (err) {
-            //enable the record button if getUserMedia() fails
+      mediaRecorder.addEventListener("stop", () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        console.log("Recording stopped");
+        // Function to handle the blob further if needed
+        onStop(audioBlob);
     });
 
-}
+      mediaRecorder.start();
+      console.log("Recording started");
+    }).catch(function (err) {
+        //enable the record button if getUserMedia() fails
+        console.error("Recording failed: ", err);
+    });
+  }
 
-const stopRecording = () => {
-    console.log("stopButton clicked");
+  const stopRecording = () => {
+      console.log("Stopping recording");
 
-    recorder.stop(); //stop microphone access
-    gumStream.getAudioTracks()[0].stop();
-
-    recorder.exportWAV(onStop);
-}
-
-const onStop = (blob) => {
-    console.log("uploading...");
-
-    let data = new FormData();
-
-    data.append('text', "this is the transcription of the audio file");
-    data.append('wavfile', blob, "recording.wav");
-
-    const config = {
-        headers: {'content-type': 'multipart/form-data'}
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        if (gumStream) {
+            gumStream.getAudioTracks().forEach(track => track.stop());
+        }
     }
-    //axios.post('http://localhost:server', data, config);
-}
+  }
 
+  const onStop = async (blob) => {
+    console.log("Recording ready for playback");
+    setFile(blob);
+  }
 
-// Play and Pause Audio
-const playAudio = () => {
-  console.log('Playing audio')
+  // Play and Pause Audio
+  let currentBlobUrl = null; // Store blob url for current audio file
 
-  const files = fileInputRef.current.files;
+  const playAudio = () => {
+    console.log('Playing audio')
 
-  if (files.length > 0) {
-    console.log("File selected:", files[0]);
+    if (!file) {
+      console.log("No file selected.");
+      return;
+    }
 
     const audioPlayer = document.getElementById('audioPlayer');
 
-    audioPlayer.src = URL.createObjectURL(files[0]);
-    console.log("Audio source set:", audioPlayer.src);
+    if (!currentBlobUrl || audioPlayer.src !== currentBlobUrl) {
+      // Existing blob url
+      if (currentBlobUrl) {
+        URL.revokeObjectURL(currentBlobUrl);
+        currentBlobUrl = null;
+      }
+      // New blob url
+      currentBlobUrl = URL.createObjectURL(file);
+      audioPlayer.src = currentBlobUrl;
+      audioPlayer.load(); // Load the new source
+      console.log("Loading new audio file...");
+    }
 
-    audioPlayer.load();
     audioPlayer.play();
 
     audioPlayer.onplay = () => console.log("Audio is now playing.");
     audioPlayer.onerror = () => console.error("Error occurred while trying to play the audio.");
-  }
-  else {
-    console.log("No file selected.", files);
-  }
-};
 
-const pauseAudio = () => {
-  const audioPlayer = document.getElementById('audioPlayer');
-  if (audioPlayer && !audioPlayer.paused) {
-    audioPlayer.pause();
-  }
-};
+  };
 
-//HTML AND CSS
+  const pauseAudio = () => {
+    const audioPlayer = document.getElementById('audioPlayer');
+    if (audioPlayer && !audioPlayer.paused) {
+      audioPlayer.pause();
+    }
+  };
+
+  // Share Button
+  const handleShare = async () => {
+    // Translated audio file
+    const file = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; //Filler audio
+
+    if(navigator.share){
+      try {
+        await navigator.share({
+          title: 'Vocalaize Translation',
+          text: 'Check out this translation!',
+          files: [file]
+        });
+        console.log('Successfully shared the translation!');
+      } catch (error) {
+        console.error('Error sharing the translation:', error);
+      }
+    }
+
+  };
+
+  //HTML AND CSS
 
   return (
     <div>
@@ -307,147 +411,165 @@ const pauseAudio = () => {
             </Select>
           </Stack>
           <Stack 
-          p={'80px'} 
-          borderRadius="10px" 
-          direction="column" 
-          justify="flex-start" 
-          align="flex-start" 
-          spacing="10px" 
-          overflow="hidden" 
-          maxWidth="100%" 
-          shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
-          bg="rgba(137, 172, 212, 0.3)"
-
-          >
+            p={'80px'} 
+            borderRadius="10px" 
+            direction="column" 
+            justify="flex-start" 
+            align="flex-start" 
+            spacing="10px" 
+            overflow="hidden" 
+            maxWidth="100%" 
+            shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
+            bg="rgba(137, 172, 212, 0.3)"
+            >
             <Stack direction="row" justify="flex-start" align="center">
               
-            <Input 
-            fontSize={'18px'}
-            type='file' 
-            multiple ref={fileInputRef}
+              <Input 
+                fontSize={'18px'}
+                type='file' 
+                onChange={handleFileChange}
+                size="md"
               />
+
+              <Button   // Start recording audio
+                onClick={startRecording}
+                size="lg" 
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                px={'7px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
+              Start
+              </Button>
+
+              <Button   // Stop recording audio
+                onClick={stopRecording}
+                size="lg" 
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                px={'7px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
+              Stop
+              </Button>
+
+              <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
+
               <audio id="audioPlayer" controls hidden></audio>
-              <Button 
-              onClick={playAudio} // Play uploaded audio file
-              size="lg" 
-              variant="solid" 
-              height='48px'
-              bg={'#304289'} 
-              borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
-                Play
-              </Button>
-              <Button 
-              onClick={pauseAudio} // Pause uploaded audio file
-              size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#304289'} 
-               borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              <Button   // Play uploaded audio file
+                onClick={playAudio}
+                size="lg" 
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                px={'7px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
-                Pause
+              Play
               </Button>
-              <Button 
-              onClick={handleFileUpload}
-               size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#304289'} 
-               px={'7px'}
-               borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+
+              <Button   // Pause uploaded audio file
+                onClick={pauseAudio} 
+                size="lg" 
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                px={'7px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
-            Translate
+              Pause
               </Button>
+
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
-              <Button 
-              onClick={startRecording}
-              size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#304289'} 
-               borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
-                Start
+
+              <Button   // Upload File & Translate
+                onClick={handleFileUpload}
+                size="lg" 
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                px={'7px'}
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
+              Translate
               </Button>
-              <Button 
-              onClick={stopRecording}
-              size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#304289'} 
-               borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
-                Stop
-              </Button>
+              
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
-              <Button size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#304289'} 
-               borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
-                Play
+
+              <Button  // Translated audio play button
+                size="lg"
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                px={'7px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
+              Play
               </Button>
-              <Button size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#304289'} 
-               borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#ffffff'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+
+              <Button   // Translated audio pause button
+                size="lg" 
+                variant="solid" 
+                height='48px'
+                bg={'#304289'} 
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                px={'7px'}
+                w={'80px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
                 Pause
               </Button>
             </Stack>
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
-            <Button size="lg" 
-               variant="solid" 
-               height='48px'
-               bg={'#ffffff'} 
-               borderRadius={'20px'}
+            <Button   // Save translated audio
+              size="lg" 
+              variant="solid" 
+              height='48px'
+              bg={'#ffffff'} 
+              borderRadius={'20px'}
               borderStyle={'none'}
               textDecor={'none'}
               textColor={'#000000'}
@@ -455,24 +577,26 @@ const pauseAudio = () => {
               px={'7px'}
               w={'80px'}
               _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
-              >
-              Save
+            >
+            Save
             </Button>
-            <Button 
+
+            <Button   // Share translated audio
+              onClick={handleShare}
               size="lg" 
               variant="solid" 
               height='48px'
               bg={'#ffffff'} 
               borderRadius={'20px'}
-             borderStyle={'none'}
-             textDecor={'none'}
-             textColor={'#000000'}
-             fontSize={'16px'}
-             px={'7px'}
-             w={'80px'}
-             _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
-             >
-              Share
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#000000'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+            >
+            Share
             </Button>
           </Stack>
         </Stack>
