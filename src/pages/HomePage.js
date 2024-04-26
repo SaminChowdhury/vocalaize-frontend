@@ -281,14 +281,14 @@ const HomePage = () => {
   let currentBlobUrl = null; // Store blob url for current audio file
 
   const playAudio = () => {
-    console.log('Playing audio')
+    console.log("Playing audio")
 
     if (!file) {
       console.log("No file selected.");
       return;
     }
 
-    const audioPlayer = document.getElementById('audioPlayer');
+    const audioPlayer = document.getElementById("audioPlayer");
 
     if (!currentBlobUrl || audioPlayer.src !== currentBlobUrl) {
       // Existing blob url
@@ -317,24 +317,47 @@ const HomePage = () => {
     }
   };
 
+  // Save Button
+  const handleSave = async () => {
+    console.log("Saving translation");
+
+    const formData = new FormData();
+    // Change with endpoint info
+    formData.append('file', file);
+    formData.append('user_id', user.id);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/FILLIN', {
+        method: 'POST',
+        body: formData,
+        headers: {}
+      });
+      if (response.ok) {
+        alert("Translation saved successfully");
+      }
+    } catch (error) {
+      console.error("Error saving translation:", error);
+    }
+  };
+
   // Share Button
   const handleShare = async () => {
-    console.log('Sharing translation');
+    console.log("Sharing translation");
   
     const fileUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // Change to translated audio
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Vocalaize Translation',
-          text: 'Check out this translation!',
+          title: "Vocalaize Translation",
+          text: "Check out this translation!",
           url: fileUrl // Change to translated audio
         });
-        console.log('Successful share prompt');
+        console.log("Successful share prompt");
       } catch (error) {
-        console.error('Error sharing the translation:', error);
+        console.error("Error sharing the translation:", error);
       }
     } else {
-      alert('Web share not supported on this browser.');
+      alert("Web share not supported on this browser.");
     }
   };
 
@@ -540,6 +563,7 @@ const HomePage = () => {
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
             <Button   // Save translated audio
+              onClick={handleSave}
               size="lg" 
               variant="solid" 
               height='48px'
