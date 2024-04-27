@@ -39,24 +39,6 @@ const HomePage = () => {
     fetchLanguageOptions();
   }, []);
 
-  //Language Dropdown Menus
-  useEffect(() => {
-    const fetchLanguageOptions = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/languages');
-        if (!response.ok) {
-          throw new Error('Failed to fetch language options');
-        }
-        const data = await response.json();
-        setLanguageOptions(data); // Ensure this matches the API response structure
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchLanguageOptions();
-  }, []);
-
   //Token Checking
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -99,89 +81,87 @@ const HomePage = () => {
     }
   }, [userId]);
 
-  //File Dropzone
-  const onDrop = useCallback((acceptedFiles) => {
-    const firstFile = acceptedFiles[0];
-    if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
-      setFile({
-        name: firstFile.name,
-        size: firstFile.size,
-        type: firstFile.type,
-      });
-    }
-  }, []);
+//File Upload and Translation Operations
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    multiple: false,
-  });
+const onDrop = useCallback((acceptedFiles) => {
+  const firstFile = acceptedFiles[0];
+  if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
+    setFile({
+      name: firstFile.name,
+      size: firstFile.size,
+      type: firstFile.type,
+    });
+  }
+}, []);
 
-  // Token validation to get user ID
-  useEffect(() => {
-    const validateToken = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error("No token available.");
-        return;
-      }
-
-      try {
-        const response = await fetch('http://127.0.0.1:5000/validate-token', {
-          method: 'GET',
-          headers: {
-            'token': `${token}`
-          }
-        });
-
-        if (!response.ok) throw new Error('Token validation failed.');
-
-        const data = await response.json();
-        setUser({ id: data.user_info.user_id });
-      } catch (error) {
-        console.error('Error validating token:', error);
-      }
-    };
-
-    validateToken();
-  }, []);
-
-  //Change File
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  //File Upload and Translation
-  const handleFileUpload = async () => {
-    if (!file || !user.id || !language1 || !language2) {
-      alert("Please ensure a file is selected and all form fields are filled.");
+const { getRootProps, getInputProps } = useDropzone({
+  onDrop,
+  multiple: false,
+});
+ // Token validation to get user ID
+ useEffect(() => {
+  const validateToken = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token available.");
       return;
     }
-  
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('user_id', user.id);
-    formData.append('source_language', language1);
-    formData.append('target_language', language2);
-  
+
     try {
-      const response = await fetch('http://20.9.240.176:5000/upload-audio', {
-        method: 'POST',
-        body: formData,
+      const response = await fetch('http://127.0.0.1:5000/validate-token', {
+        method: 'GET',
         headers: {
+          'token': `${token}`
         }
       });
-  
-      if (!response.ok) throw new Error('Failed to upload file.');
-  
+
+      if (!response.ok) throw new Error('Token validation failed.');
+
       const data = await response.json();
-      alert('File uploaded and translation created, ID: ' + data.translation_id);
+      setUser({ id: data.user_info.user_id });
     } catch (error) {
-      console.error('Error during file upload:', error);
-      alert('Error during file upload: ' + error.message);
+      console.error('Error validating token:', error);
     }
   };
 
-  //Subscription Level Checking and Ads
+  validateToken();
+}, []);
+
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
+};
+
+const handleFileUpload = async () => {
+  if (!file || !user.id || !language1 || !language2) {
+    alert("Please ensure a file is selected and all form fields are filled.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('user_id', user.id);
+  formData.append('source_language', language1);
+  formData.append('target_language', language2);
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/upload-audio', {
+      method: 'POST',
+      body: formData,
+      headers: {
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to upload file.');
+
+    const data = await response.json();
+    alert('File uploaded and translation created, ID: ' + data.translation_id);
+  } catch (error) {
+    console.error('Error during file upload:', error);
+    alert('Error during file upload: ' + error.message);
+  }
+};
+//Subscription Level Checking and Ads
+
   const checkSubscriptionLevel = async (userId) => {
     const token = localStorage.getItem('token');
     console.log('User id before fetch is ' + userId);
@@ -193,8 +173,8 @@ const HomePage = () => {
             'Content-Type': 'application/json',
             'token': `${token}`
           },
-          });
-
+        });
+  
         if (response.ok) {
           const data = await response.json();
           // Check if the subscription level is 'Free Tier' in the response
@@ -213,17 +193,18 @@ const HomePage = () => {
     }
   }  
 
+  
   useEffect(() => {
-    checkSubscriptionLevel(userId);
-    if (showAds) {
-      // Load Google AdSense script dynamically
-      const script = document.createElement('script');
-      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
-      script.crossOrigin = "anonymous";
-      script.async = true;
-      document.body.appendChild(script);
-      console.log('when calling ads:' + userId)
-    }
+      checkSubscriptionLevel(userId);
+      if (showAds) {
+        // Load Google AdSense script dynamically
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
+        script.crossOrigin = "anonymous";
+        script.async = true;
+        document.body.appendChild(script);
+        console.log('when calling ads:' + userId)
+      }
   }, [showAds]);
 
   // Audio Recording
