@@ -156,46 +156,29 @@ const HomePage = () => {
       alert("Please ensure a file is selected and all form fields are filled.");
       return;
     }
-
-    console.log("Uploading file:", file.name, "for translation from", language1, "to", language2, "for user ID", user.id)
-
+  
     const formData = new FormData();
     formData.append('file', file);
     formData.append('user_id', user.id);
     formData.append('source_language', language1);
     formData.append('target_language', language2);
-
-    const xhr = new XMLHttpRequest();
-
-    xhr.open('POST', 'http://127.0.0.1:5000/upload-audio', true);
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percentComplete = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(percentComplete);  // Update progress state
-        console.log(`Upload progress: ${percentComplete}%`);
-      }
-    };
   
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        console.log("Upload Complete");
-        const data = JSON.parse(xhr.responseText);
-        setTranslationId(data.translation_id);
-        alert('File uploaded and translation created, ID: ' + data.translation_id);
-      } else {
-        console.error('Error during file upload:', xhr.statusText);
-        alert('Error during file upload: ' + xhr.statusText);
-      }
-      setUploadProgress(0);  // Reset progress
-    };
+    try {
+      const response = await fetch('http://20.9.240.176:5000/upload-audio', {
+        method: 'POST',
+        body: formData,
+        headers: {
+        }
+      });
   
-    xhr.onerror = () => {
-      console.error('Error during file upload:', xhr.statusText);
-      alert('Error during file upload: ' + xhr.statusText);
-    };
+      if (!response.ok) throw new Error('Failed to upload file.');
   
-    xhr.send(formData);
+      const data = await response.json();
+      alert('File uploaded and translation created, ID: ' + data.translation_id);
+    } catch (error) {
+      console.error('Error during file upload:', error);
+      alert('Error during file upload: ' + error.message);
+    }
   };
 
   //Subscription Level Checking and Ads
