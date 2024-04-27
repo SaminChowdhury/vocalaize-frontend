@@ -1,4 +1,4 @@
-import { Stack, Select, Button, Box, Input } from '@chakra-ui/react'
+import { Stack, Select, Button, Box, Input, Fade } from '@chakra-ui/react'
 import React from 'react';
 import { useCallback, useState, useRef, useEffect} from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -23,7 +23,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchLanguageOptions = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/languages');
+        const response = await fetch('http://localhost:5000/languages');
         if (!response.ok) {
           throw new Error('Failed to fetch language options');
         }
@@ -40,7 +40,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchLanguageOptions = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/languages');
+        const response = await fetch('http://localhost:5000/languages');
         if (!response.ok) {
           throw new Error('Failed to fetch language options');
         }
@@ -59,7 +59,7 @@ const HomePage = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('http://127.0.0.1:5000/validate-token', {
+        fetch('http://localhost:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -124,7 +124,7 @@ const HomePage = () => {
       }
 
       try {
-        const response = await fetch('http://127.0.0.1:5000/validate-token', {
+        const response = await fetch('http://localhost:5000/validate-token', {
           method: 'GET',
           headers: {
             'token': `${token}`
@@ -162,7 +162,7 @@ const HomePage = () => {
     formData.append('target_language', language2);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/upload-audio', {
+      const response = await fetch('http://localhost:5000/upload-audio', {
         method: 'POST',
         body: formData,
         headers: {
@@ -185,7 +185,7 @@ const HomePage = () => {
     console.log('User id before fetch is ' + userId);
     if (token) {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/${userId}/subscription`, {
+        const response = await fetch(`http://localhost:5000/${userId}/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
@@ -327,7 +327,7 @@ const HomePage = () => {
     formData.append('user_id', user.id);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/FILLIN', {
+      const response = await fetch('http://localhost:5000/FILLIN', {
         method: 'POST',
         body: formData,
         headers: {}
@@ -361,12 +361,19 @@ const HomePage = () => {
     }
   };
 
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsOpen(true);  // Set open state to true when component mounts
+  }, []);
+
   //HTML AND CSS
 
   return (
     <div>
       <Navbar />
-      <Stack border={'0.5px black solid'} minHeight="100vh" direction="column" justify="flex-start" align="center" overflow="hidden" bg="#E7EEFD">
+      <Fade in={isOpen} transition={{ enter: { duration: 3 } }}>
+      <Stack border={'0.5px black solid'} minHeight="100vh" direction="column" justify="flex-start" align="center" overflow="hidden" bgGradient="linear(to-b, #FFFFFF, #a3abca)">
         <Stack direction="column" justify="flex-start" align="center">
           <Stack pt={'50px'} pb={'20px'} direction="row" justify="flex-start" align="center" spacing={'750px'}>
             <Select
@@ -418,30 +425,32 @@ const HomePage = () => {
             overflow="hidden" 
             maxWidth="100%" 
             shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
-            bg="rgba(137, 172, 212, 0.3)"
+            bg="#FFFFFF"
             >
             <Stack direction="row" justify="flex-start" align="center">
               
+            <Box w="200px" h="0px" mr="30px"> {/* Adjust width and height as needed */}
               <Input 
-                fontSize={'18px'}
+                fontSize={'14px'}
                 type='file' 
                 onChange={handleFileChange}
-                size="md"
+                size="sm"
               />
+            </Box>
 
               <Button   // Start recording audio
                 onClick={startRecording}
                 size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'30px'}
                 height='48px'
-                bg={'#304289'} 
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
               Start
@@ -451,15 +460,15 @@ const HomePage = () => {
                 onClick={stopRecording}
                 size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'30px'}
                 height='48px'
-                bg={'#304289'} 
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
               Stop
@@ -472,15 +481,15 @@ const HomePage = () => {
                 onClick={playAudio}
                 size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'30px'}
                 height='48px'
-                bg={'#304289'} 
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
               Play
@@ -490,15 +499,15 @@ const HomePage = () => {
                 onClick={pauseAudio} 
                 size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'30px'}
                 height='48px'
-                bg={'#304289'} 
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
               Pause
@@ -510,15 +519,15 @@ const HomePage = () => {
                 onClick={handleFileUpload}
                 size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'50px'}
                 height='48px'
-                bg={'#304289'} 
-                px={'7px'}
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
               Translate
@@ -527,17 +536,17 @@ const HomePage = () => {
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
 
               <Button  // Translated audio play button
-                size="lg"
+                size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'30px'}
                 height='48px'
-                bg={'#304289'} 
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
               Play
@@ -546,15 +555,15 @@ const HomePage = () => {
               <Button   // Translated audio pause button
                 size="lg" 
                 variant="solid" 
+                bg={'#304289'}  
+                px={'30px'}
                 height='48px'
-                bg={'#304289'} 
+                mt={'40px'}
                 borderRadius={'20px'}
                 borderStyle={'none'}
                 textDecor={'none'}
                 textColor={'#ffffff'}
                 fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
               >
                 Pause
@@ -564,18 +573,18 @@ const HomePage = () => {
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
             <Button   // Save translated audio
               onClick={handleSave}
-              size="lg" 
-              variant="solid" 
-              height='48px'
-              bg={'#ffffff'} 
-              borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#000000'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+                size="lg" 
+                variant="solid" 
+                bg={'#ffffff'}  
+                px={'30px'}
+                height='48px'
+                mt={'40px'}
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#304289'}
+                fontSize={'16px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
             >
             Save
             </Button>
@@ -583,17 +592,17 @@ const HomePage = () => {
             <Button   // Share translated audio
               onClick={handleShare}
               size="lg" 
-              variant="solid" 
-              height='48px'
-              bg={'#ffffff'} 
-              borderRadius={'20px'}
-              borderStyle={'none'}
-              textDecor={'none'}
-              textColor={'#000000'}
-              fontSize={'16px'}
-              px={'7px'}
-              w={'80px'}
-              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+                variant="solid" 
+                bg={'#ffffff'}  
+                px={'30px'}
+                height='48px'
+                mt={'40px'}
+                borderRadius={'20px'}
+                borderStyle={'none'}
+                textDecor={'none'}
+                textColor={'#304289'}
+                fontSize={'16px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
             >
             Share
             </Button>
@@ -613,6 +622,7 @@ const HomePage = () => {
           <input {...getInputProps()} ref={fileInputRef} />
         </Stack>
       </Stack>
+      </Fade>
     </div>
   );
 };
