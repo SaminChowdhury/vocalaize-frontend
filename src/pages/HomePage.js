@@ -1,59 +1,55 @@
-import { Stack, Select, Button, Box, Input, Fade } from '@chakra-ui/react'
+import { Stack, Select, Button, Box, Input } from '@chakra-ui/react'
 import React from 'react';
 import { useCallback, useState, useRef, useEffect} from 'react';
 import { useDropzone } from 'react-dropzone';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { set } from 'firebase/database';
 //import useDrivePicker from 'react-google-drive-picker'
 
-const HomePage = () => {
-  const [file, setFile] = useState(null);
-  const [language1, setLanguage1] = useState('');
-  const [language2, setLanguage2] = useState('');
-  const [languageOptions, setLanguageOptions] = useState([]);
-  const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-  const [subscriptionLevel, setSubscriptionLevel] = useState('');
-  const [showAds, setShowAds] = useState(false);
-  const [userId, setUserId] = useState(null);
-  const [user, setUser] = useState({ id: null });
-  const [translationId, setTranslationId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState('idle'); //idle, loading, completed
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isTranslatedPlaying, setIsTranslatedPlaying] = useState(false);
+    const HomePage = () => {
+    const [file, setFile] = useState(null);
+    const [language1, setLanguage1] = useState('');
+    const [language2, setLanguage2] = useState('');
+    const [languageOptions, setLanguageOptions] = useState([]);
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+    const [subscriptionLevel, setSubscriptionLevel] = useState('');
+    const [showAds, setShowAds] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [user, setUser] = useState({ id: null });
+    const [translationId, setTranslationId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [status, setStatus] = useState('idle'); //idle, loading, completed
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isTranslatedPlaying, setIsTranslatedPlaying] = useState(false);
 
-  //Language Dropdown Menus
-  useEffect(() => {
-    const fetchLanguageOptions = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/languages');
-        if (!response.ok) {
-          throw new Error('Failed to fetch language options');
+//Language Dropdown Menus
+
+    useEffect(() => {
+      const fetchLanguageOptions = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/languages');
+          if (!response.ok) {
+            throw new Error('Failed to fetch language options');
+          }
+          const data = await response.json();
+          setLanguageOptions(data); // Ensure this matches the API response structure
+        } catch (error) {
+          console.error('Error:', error);
         }
-        const data = await response.json();
-        setLanguageOptions(data); // Ensure this matches the API response structure
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchLanguageOptions();
-  }, []);
-
-
-
-
-
-
-
+      };
   
-  //Token Checking
+      fetchLanguageOptions();
+    }, []);
+
+//Token Checking
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('http://localhost:5000/validate-token', {
+        fetch('http://127.0.0.1:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -75,302 +71,129 @@ const HomePage = () => {
         });
 
     }
-    else{
-      navigate('/SignIn');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      checkSubscriptionLevel(userId);
-    }
-  }, [userId]);
-
-  //File Dropzone
-  const onDrop = useCallback((acceptedFiles) => {
-    const firstFile = acceptedFiles[0];
-    if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
-      setFile({
-        name: firstFile.name,
-        size: firstFile.size,
-        type: firstFile.type,
-      });
-    }
-  }, []);
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    multiple: false,
-  });
-
-  // Token validation to get user ID
-  useEffect(() => {
-    const validateToken = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error("No token available.");
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:5000/validate-token', {
-          method: 'GET',
-          headers: {
-            'token': `${token}`
-          }
-        });
-
-        if (!response.ok) throw new Error('Token validation failed.');
-
-        const data = await response.json();
-        setUser({ id: data.user_info.user_id });
-      } catch (error) {
-        console.error('Error validating token:', error);
-      }
-    };
-
-    validateToken();
-  }, []);
-
-  //Change File
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-
-
-// Download Button
-const handleFileDownload = async () => {
-  console.log("Downloading translation");
-
-  if (!translationId) {
-    alert("No file available for downloading.");
-    return;
+  else{
+    navigate('/SignIn');
   }
+}, []);
 
-  const downloadUrl = `http://localhost:5000/download-file/${user.id}/${translationId}`;
+useEffect(() => {
+  if (userId) {
+    checkSubscriptionLevel(userId);
+  }
+}, [userId]);
 
-  try {
-    const response = await fetch(downloadUrl, {
-      method: 'GET',
+//File Dropzone
+
+const onDrop = useCallback((acceptedFiles) => {
+  const firstFile = acceptedFiles[0];
+  if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
+    setFile({
+      name: firstFile.name,
+      size: firstFile.size,
+      type: firstFile.type,
     });
-    if (response.ok) {
-      const blob = await response.blob();
-      
-      // Create a link and trigger the download
-      const downloadLink = document.createElement('a');
-      downloadLink.href = URL.createObjectURL(blob);
-      downloadLink.download = "translation.mp3"; // FILENAME CHANGE
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      console.log("Translation downloaded successfully");
-    } else {
-      throw new Error("Failed to download file.");
-    }
-  } catch (error) {
-    console.error("Error downloading translation:", error);
   }
-};
+}, []);
 
-const playRecordingAudio = () => {
-  console.log("Playing audio")
+const { getRootProps, getInputProps } = useDropzone({
+  onDrop,
+  multiple: false,
+});
 
-  if (!file) {
-    console.log("No file selected");
-    return;
-  }
-
-  const audioPlayer = document.getElementById("audioPlayer");
-
-  if (!currentBlobUrl || audioPlayer.src !== currentBlobUrl) {
-    // Existing blob url
-    if (currentBlobUrl) {
-      URL.revokeObjectURL(currentBlobUrl);
-      currentBlobUrl = null;
-    }
-    // New blob url
-    currentBlobUrl = URL.createObjectURL(file);
-    audioPlayer.src = currentBlobUrl;
-    audioPlayer.load(); // Load the new source
-    console.log("Loading new audio file...");
-  }
-
-  audioPlayer.play();
-  setIsPlaying(true);
-
-  audioPlayer.onplay = () => console.log("Audio is now playing");
-  audioPlayer.onerror = () => {
-    console.error("Error occurred while trying to play the audio.");
-    setIsPlaying(false);
-  }
-  audioPlayer.onended = () => setIsPlaying(false);
-
-};
-
-const pauseRecordingAudio = () => {
-  const audioPlayer = document.getElementById('audioPlayer');
-  if (audioPlayer && !audioPlayer.paused) {
-    audioPlayer.pause();
-    setIsPlaying(false);
-    console.log("Audio paused");
-  }
-};
-
-
- // Play and Pause Translation Audio
- let currentTranslatedBlobUrl = null; // Store translated blob url for current audio file
-
- const playTranslatedAudio = async () => {
-   console.log("Playing translated audio");
-
-   const audioPlayer = document.getElementById("translatedAudioPlayer");
-   if (!currentTranslatedBlobUrl) {
-     const downloadUrl = `http://localhost:5000/download-file/${user.id}/${translationId}`;
- 
-     try {
-       const response = await fetch(downloadUrl, { method: 'GET' });
-       if (response.ok) {
-         const translatedAudioBlob = await response.blob();
-         
-         // Cleanup previous blob URL if any
-         if (currentTranslatedBlobUrl) {
-           URL.revokeObjectURL(currentTranslatedBlobUrl);
-         }
-         
-         // Create and set new blob URL
-         currentTranslatedBlobUrl = URL.createObjectURL(translatedAudioBlob);
-         audioPlayer.src = currentTranslatedBlobUrl;
-         audioPlayer.load(); // Load the new source only once
-         console.log("Loading new translated audio file...");
-       } else {
-         alert("Please translate your audio first");
-         throw new Error("Failed to fetch translated audio");
-       }
-     } catch (error) {
-       console.error("Error fetching translated audio:", error);
-     }
-   }
- 
-   audioPlayer.play();
-   setIsTranslatedPlaying(true);
-   audioPlayer.onplay = () => console.log("Translated audio is now playing");
-   audioPlayer.onerror = () => {
-     console.error("Error occurred while trying to play the translated audio.");
-     setIsTranslatedPlaying(false);
-   };
-   audioPlayer.onended = () => setIsTranslatedPlaying(false);
- };
- 
- const pauseTranslatedAudio = () => {
-   const audioPlayer = document.getElementById('translatedAudioPlayer');
-   if (audioPlayer && !audioPlayer.paused && !audioPlayer.ended && audioPlayer.readyState > 2) {
-       audioPlayer.pause();
-       setIsTranslatedPlaying(false);
-       console.log("Translated audio paused");
-   }
- };
-
-
-
-
-
-
-// Share Button
-
-const handleShare = async () => {
-  console.log("Sharing translation");
-
-  if (!translationId) {
-    alert("No file available for sharing.");
-    return;
-  }
-
-  const downloadUrl = `http://127.0.0.1:5000/download-file/${user.id}/${translationId}`;
-
-  try {
-    const response = await fetch(downloadUrl, {
-      method: 'GET',
-    });
-    if (response.ok) {
-      const blob = await response.blob();
-      const file = new File([blob], "translation.mp3", { type: 'audio/mp3' });
-
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: "Vocalaize Translation",
-            text: "Check out this translation!",
-            files: [file],
-          });
-          console.log("Successful share prompt");
-        } catch (error) {
-          console.error("Error sharing the translation:", error);
-        }
-      } else {
-        alert("Web share not supported on this browser.");
-      }
-    } else {
-      throw new Error("Failed to fetch the translated file for sharing.");
-    }
-  } catch (error) {
-    console.error("Error downloading translation for share:", error);
-  }
-};
-
-
-
-
-
-
-
-
-
-  //File Upload and Translation
-  const handleFileUpload = async () => {
-    if (!file || !user.id || !language1 || !language2) {
-      alert("Please ensure a file is selected and all form fields are filled.");
+ // Token validation to get user ID
+ useEffect(() => {
+  const validateToken = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token available.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('user_id', user.id);
-    formData.append('source_language', language1);
-    formData.append('target_language', language2);
-
     try {
-      const response = await fetch('http://localhost:5000/upload-audio', {
-        method: 'POST',
-        body: formData,
+      const response = await fetch('http://127.0.0.1:5000/validate-token', {
+        method: 'GET',
         headers: {
+          'token': `${token}`
         }
       });
 
-      if (!response.ok) throw new Error('Failed to upload file.');
+      if (!response.ok) throw new Error('Token validation failed.');
 
       const data = await response.json();
-      alert('File uploaded and translation created, ID: ' + data.translation_id);
+      setUser({ id: data.user_info.user_id });
     } catch (error) {
-      console.error('Error during file upload:', error);
-      alert('Error during file upload: ' + error.message);
+      console.error('Error validating token:', error);
     }
   };
 
-  //Subscription Level Checking and Ads
+  validateToken();
+}, []);
+
+
+// File Uploads
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
+};
+
+const handleFileUpload = async () => {
+  if (!file || !user.id || !language1 || !language2) {
+    alert("Please ensure a file is selected / audio is recorded and all form fields are filled.");
+    return;
+  }
+
+  console.log("Uploading file:", file, user.id, language1, language2);
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('user_id', user.id);
+  formData.append('source_language', language1);
+  formData.append('target_language', language2);
+
+  setIsLoading(true);
+  setStatus('loading');
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/upload-audio', {
+      method: 'POST',
+      body: formData,
+      headers: {
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to upload file.');
+
+    console.log("Script running...")
+
+    const data = await response.json();
+
+    setTranslationId(data.translation_id);
+    setStatus('completed');
+
+    console.log("File uploaded and translation created, ID: " + data.translation_id);
+    alert('File uploaded and translation created, ID: ' + data.translation_id);
+  } catch (error) {
+    console.error('Error during file upload:', error);
+    alert('Error during file upload: ' + error.message);
+    setStatus('idle');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+//Subscription Level Checking and Ads
   const checkSubscriptionLevel = async (userId) => {
     const token = localStorage.getItem('token');
     console.log('User id before fetch is ' + userId);
     if (token) {
       try {
-        const response = await fetch(`http://localhost:5000/${userId}/subscription`, {
+        const response = await fetch(`http://127.0.0.1:5000/${userId}/subscription`, {
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
             'token': `${token}`
           },
-          });
-
+        });
+  
         if (response.ok) {
           const data = await response.json();
           // Check if the subscription level is 'Free Tier' in the response
@@ -389,17 +212,18 @@ const handleShare = async () => {
     }
   }  
 
+  
   useEffect(() => {
-    checkSubscriptionLevel(userId);
-    if (showAds) {
-      // Load Google AdSense script dynamically
-      const script = document.createElement('script');
-      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
-      script.crossOrigin = "anonymous";
-      script.async = true;
-      document.body.appendChild(script);
-      console.log('when calling ads:' + userId)
-    }
+      checkSubscriptionLevel(userId);
+      if (showAds) {
+        // Load Google AdSense script dynamically
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
+        script.crossOrigin = "anonymous";
+        script.async = true;
+        document.body.appendChild(script);
+        console.log('when calling ads:' + userId)
+      }
   }, [showAds]);
 
   // Audio Recording
@@ -427,14 +251,12 @@ const handleShare = async () => {
       mediaRecorder.addEventListener("stop", () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         console.log("Recording stopped");
-        // Function to handle the blob further if needed
         onStop(audioBlob);
     });
 
       mediaRecorder.start();
       console.log("Recording started");
     }).catch(function (err) {
-        //enable the record button if getUserMedia() fails
         console.error("Recording failed: ", err);
     });
   }
@@ -451,18 +273,93 @@ const handleShare = async () => {
   }
 
   const onStop = async (blob) => {
-    console.log("Recording ready for playback");
+    console.log("Recording ready for translation");
     setFile(blob);
   }
 
-  // Play and Pause Audio
+  // Download Button
+  const handleFileDownload = async () => {
+    console.log("Downloading translation");
+
+    if (!translationId) {
+      alert("No file available for downloading.");
+      return;
+    }
+
+    const downloadUrl = `http://127.0.0.1:5000/download-file/${user.id}/${translationId}`;
+
+    try {
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        
+        // Create a link and trigger the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = "translation.mp3"; // FILENAME CHANGE
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        console.log("Translation downloaded successfully");
+      } else {
+        throw new Error("Failed to download file.");
+      }
+    } catch (error) {
+      console.error("Error downloading translation:", error);
+    }
+  };
+
+  // Share Button
+  const handleShare = async () => {
+    console.log("Sharing translation");
+
+    if (!translationId) {
+      alert("No file available for sharing.");
+      return;
+    }
+
+    const downloadUrl = `http://127.0.0.1:5000/download-file/${user.id}/${translationId}`;
+
+    try {
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const file = new File([blob], "translation.mp3", { type: 'audio/mp3' });
+  
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: "Vocalaize Translation",
+              text: "Check out this translation!",
+              files: [file],
+            });
+            console.log("Successful share prompt");
+          } catch (error) {
+            console.error("Error sharing the translation:", error);
+          }
+        } else {
+          alert("Web share not supported on this browser.");
+        }
+      } else {
+        throw new Error("Failed to fetch the translated file for sharing.");
+      }
+    } catch (error) {
+      console.error("Error downloading translation for share:", error);
+    }
+  };
+
+  // Play and Pause Recording Audio
   let currentBlobUrl = null; // Store blob url for current audio file
 
-  const playAudio = () => {
+  const playRecordingAudio = () => {
     console.log("Playing audio")
 
     if (!file) {
-      console.log("No file selected.");
+      console.log("No file selected");
       return;
     }
 
@@ -482,55 +379,85 @@ const handleShare = async () => {
     }
 
     audioPlayer.play();
+    setIsPlaying(true);
 
-    audioPlayer.onplay = () => console.log("Audio is now playing.");
-    audioPlayer.onerror = () => console.error("Error occurred while trying to play the audio.");
+    audioPlayer.onplay = () => console.log("Audio is now playing");
+    audioPlayer.onerror = () => {
+      console.error("Error occurred while trying to play the audio.");
+      setIsPlaying(false);
+    }
+    audioPlayer.onended = () => setIsPlaying(false);
 
   };
 
-  const pauseAudio = () => {
+  const pauseRecordingAudio = () => {
     const audioPlayer = document.getElementById('audioPlayer');
     if (audioPlayer && !audioPlayer.paused) {
       audioPlayer.pause();
+      setIsPlaying(false);
+      console.log("Audio paused");
     }
   };
 
-  // Save Button
-  const handleSave = async () => {
-    console.log("Saving translation");
+  // Play and Pause Translation Audio
+  let currentTranslatedBlobUrl = null; // Store translated blob url for current audio file
 
-    const formData = new FormData();
-    // Change with endpoint info
-    formData.append('file', file);
-    formData.append('user_id', user.id);
+  const playTranslatedAudio = async () => {
+    console.log("Playing translated audio");
 
-    try {
-      const response = await fetch('http://localhost:5000/FILLIN', {
-        method: 'POST',
-        body: formData,
-        headers: {}
-      });
-      if (response.ok) {
-        alert("Translation saved successfully");
+    const audioPlayer = document.getElementById("translatedAudioPlayer");
+    if (!currentTranslatedBlobUrl) {
+      const downloadUrl = `http://127.0.0.1:5000/download-file/${user.id}/${translationId}`;
+  
+      try {
+        const response = await fetch(downloadUrl, { method: 'GET' });
+        if (response.ok) {
+          const translatedAudioBlob = await response.blob();
+          
+          // Cleanup previous blob URL if any
+          if (currentTranslatedBlobUrl) {
+            URL.revokeObjectURL(currentTranslatedBlobUrl);
+          }
+          
+          // Create and set new blob URL
+          currentTranslatedBlobUrl = URL.createObjectURL(translatedAudioBlob);
+          audioPlayer.src = currentTranslatedBlobUrl;
+          audioPlayer.load(); // Load the new source only once
+          console.log("Loading new translated audio file...");
+        } else {
+          alert("Please translate your audio first");
+          throw new Error("Failed to fetch translated audio");
+        }
+      } catch (error) {
+        console.error("Error fetching translated audio:", error);
       }
-    } catch (error) {
-      console.error("Error saving translation:", error);
+    }
+  
+    audioPlayer.play();
+    setIsTranslatedPlaying(true);
+    audioPlayer.onplay = () => console.log("Translated audio is now playing");
+    audioPlayer.onerror = () => {
+      console.error("Error occurred while trying to play the translated audio.");
+      setIsTranslatedPlaying(false);
+    };
+    audioPlayer.onended = () => setIsTranslatedPlaying(false);
+  };
+  
+  const pauseTranslatedAudio = () => {
+    const audioPlayer = document.getElementById('translatedAudioPlayer');
+    if (audioPlayer && !audioPlayer.paused && !audioPlayer.ended && audioPlayer.readyState > 2) {
+        audioPlayer.pause();
+        setIsTranslatedPlaying(false);
+        console.log("Translated audio paused");
     }
   };
 
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsOpen(true);  // Set open state to true when component mounts
-  }, []);
-
-  //HTML AND CSS
+//HTML AND CSS
 
   return (
     <div>
       <Navbar />
-      <Fade in={isOpen} transition={{ enter: { duration: 3 } }}>
-      <Stack border={'0.5px black solid'} minHeight="100vh" direction="column" justify="flex-start" align="center" overflow="hidden" bgGradient="linear(to-b, #FFFFFF, #304289)">
+      <Stack border={'0.5px black solid'} minHeight="100vh" direction="column" justify="flex-start" align="center" overflow="hidden" bg="#E7EEFD">
         <Stack direction="column" justify="flex-start" align="center">
           <Stack pt={'50px'} pb={'20px'} direction="row" justify="flex-start" align="center" spacing={'750px'}>
             <Select
@@ -573,27 +500,26 @@ const handleShare = async () => {
             </Select>
           </Stack>
           <Stack 
-            p={'80px'} 
-            borderRadius="10px" 
-            direction="column" 
-            justify="flex-start" 
-            align="flex-start" 
-            spacing="10px" 
-            overflow="hidden" 
-            maxWidth="100%" 
-            shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
-            bg="#FFFFFF"
+          p={'80px'} 
+          borderRadius="10px" 
+          direction="column" 
+          justify="flex-start" 
+          align="flex-start" 
+          spacing="10px" 
+          overflow="hidden" 
+          maxWidth="100%" 
+          shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
+          bg="rgba(137, 172, 212, 0.3)"
+
           >
-           <Stack direction="row" justify="flex-start" align="center">
+            <Stack direction="row" justify="flex-start" align="center">
               
-              <Box w="200px" h="35px" mr="30px"> {/* Adjust width and height as needed */}
-                <Input 
-                  fontSize={'14px'}
-                  type='file' 
-                  onChange={handleFileChange}
-                  size="sm"
-                />
-              </Box>
+            <Input 
+            fontSize={'18px'}
+            type='file' 
+            onChange={handleFileChange}
+            size="md"
+              />
               <div>
                 {status === 'loading' && (
                   <div className="loading-container">
@@ -606,64 +532,67 @@ const handleShare = async () => {
                     <img src="/path/to/completed.gif" alt="Completed!" />
                   </div>
                 )}
-                <Button 
-                  onClick={handleFileUpload}
-                  size="lg" 
-                  variant="solid" 
-                  height='48px'
-                  bg={'#304289'} 
-                  px={'7px'}
-                  borderRadius={'20px'}
-                  borderStyle={'none'}
-                  textDecor={'none'}
-                  textColor={'#ffffff'}
-                  fontSize={'16px'}
-                  w={'80px'}
-                  _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
-                >
-                  Translate
-                </Button>
-              </div>
+              <Button 
+              onClick={handleFileUpload}
+               size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               px={'7px'}
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              >
+            Translate
+              </Button>
+            </div>
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
               <Button 
-                onClick={startRecording}
-                size="lg" 
-                variant="solid" 
-                height='48px'
-                bg={'#304289'} 
-                borderRadius={'20px'}
-                borderStyle={'none'}
-                textDecor={'none'}
-                textColor={'#ffffff'}
-                fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
-                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
-              >
-                Record
+              onClick={startRecording}
+              size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
+                Start
               </Button>
               <Button 
-                onClick={stopRecording}
-                size="lg" 
-                variant="solid" 
-                height='48px'
-                bg={'#304289'} 
-                borderRadius={'20px'}
-                borderStyle={'none'}
-                textDecor={'none'}
-                textColor={'#ffffff'}
-                fontSize={'16px'}
-                px={'7px'}
-                w={'80px'}
-                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
-              >
+              onClick={stopRecording}
+              size="lg" 
+               variant="solid" 
+               height='48px'
+               bg={'#304289'} 
+               borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#ffffff'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}>
                 Stop
               </Button>
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
               <audio id="audioPlayer" controls hidden></audio>
-              <Stack direction="row" justify="flex-start" align="center">
-                <Button 
-                  onClick={playRecordingAudio}
+              <div>
+                {isPlaying && (
+                  <div className="playing-container">
+                    <img src="/path/to/playing.gif" alt="Playing..." />
+                  </div>
+                )}
+
+                <Button onClick={playRecordingAudio}
                   size="lg" 
                   variant="solid" 
                   height='48px'
@@ -679,8 +608,8 @@ const handleShare = async () => {
                 >
                   Play
                 </Button>
-                <Button 
-                  onClick={pauseRecordingAudio}
+                
+                <Button onClick={pauseRecordingAudio}
                   size="lg" 
                   variant="solid" 
                   height='48px'
@@ -696,12 +625,18 @@ const handleShare = async () => {
                 >
                   Pause
                 </Button>
-              </Stack>
+              </div>
+
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
               <audio id="translatedAudioPlayer" controls hidden></audio>
-              <Stack direction="row" justify="flex-start" align="center">
-                <Button 
-                  onClick={playTranslatedAudio}
+              <div>
+                {isTranslatedPlaying && (
+                  <div className="playing-container">
+                    <img src="/path/to/playing.gif" alt="Playing..." />
+                  </div>
+                )}
+
+                <Button onClick={playTranslatedAudio}
                   size="lg" 
                   variant="solid" 
                   height='48px'
@@ -717,8 +652,8 @@ const handleShare = async () => {
                 >
                   Play
                 </Button>
-                <Button 
-                  onClick={pauseTranslatedAudio}
+
+                <Button onClick={pauseTranslatedAudio}
                   size="lg" 
                   variant="solid" 
                   height='48px'
@@ -734,41 +669,42 @@ const handleShare = async () => {
                 >
                   Pause
                 </Button>
-              </Stack>
+              </div>
+
             </Stack>
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
-            <Button   // Save translated audio
+          <Button   // Download translated audio
               onClick={handleFileDownload}
-                size="lg" 
-                variant="solid" 
-                bg={'#ffffff'}  
-                px={'30px'}
-                height='48px'
-                mt={'40px'}
-                borderRadius={'20px'}
-                borderStyle={'none'}
-                textDecor={'none'}
-                textColor={'#304289'}
-                fontSize={'16px'}
-                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              size="lg" 
+              variant="solid" 
+              height='48px'
+              bg={'#ffffff'} 
+              borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#000000'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
             >
             Download
             </Button>
             <Button   // Share translated audio
               onClick={handleShare}
               size="lg" 
-                variant="solid" 
-                bg={'#ffffff'}  
-                px={'45px'}
-                height='48px'
-                mt={'40px'}
-                borderRadius={'20px'}
-                borderStyle={'none'}
-                textDecor={'none'}
-                textColor={'#304289'}
-                fontSize={'16px'}
-                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+              variant="solid" 
+              height='48px'
+              bg={'#ffffff'} 
+              borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#000000'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
             >
             Share
             </Button>
@@ -788,7 +724,6 @@ const handleShare = async () => {
           <input {...getInputProps()} ref={fileInputRef} />
         </Stack>
       </Stack>
-      </Fade>
     </div>
   );
 };
