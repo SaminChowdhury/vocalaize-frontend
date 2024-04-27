@@ -18,6 +18,8 @@ const HomePage = () => {
   const [showAds, setShowAds] = useState(false);
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState({ id: null });
+  const [translationId, setTranslationId] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   //Language Dropdown Menus
   useEffect(() => {
@@ -36,6 +38,7 @@ const HomePage = () => {
 
     fetchLanguageOptions();
   }, []);
+
   //Language Dropdown Menus
   useEffect(() => {
     const fetchLanguageOptions = async () => {
@@ -54,7 +57,6 @@ const HomePage = () => {
     fetchLanguageOptions();
   }, []);
 
-  //Token Checking
   //Token Checking
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -155,28 +157,45 @@ const HomePage = () => {
       return;
     }
 
+    console.log("Uploading file:", file.name, "for translation from", language1, "to", language2, "for user ID", user.id)
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('user_id', user.id);
     formData.append('source_language', language1);
     formData.append('target_language', language2);
 
-    try {
-      const response = await fetch('http://127.0.0.1:5000/upload-audio', {
-        method: 'POST',
-        body: formData,
-        headers: {
-        }
-      });
+    const xhr = new XMLHttpRequest();
 
-      if (!response.ok) throw new Error('Failed to upload file.');
+    xhr.open('POST', 'http://127.0.0.1:5000/upload-audio', true);
 
-      const data = await response.json();
-      alert('File uploaded and translation created, ID: ' + data.translation_id);
-    } catch (error) {
-      console.error('Error during file upload:', error);
-      alert('Error during file upload: ' + error.message);
-    }
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percentComplete);  // Update progress state
+        console.log(`Upload progress: ${percentComplete}%`);
+      }
+    };
+  
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        console.log("Upload Complete");
+        const data = JSON.parse(xhr.responseText);
+        setTranslationId(data.translation_id);
+        alert('File uploaded and translation created, ID: ' + data.translation_id);
+      } else {
+        console.error('Error during file upload:', xhr.statusText);
+        alert('Error during file upload: ' + xhr.statusText);
+      }
+      setUploadProgress(0);  // Reset progress
+    };
+  
+    xhr.onerror = () => {
+      console.error('Error during file upload:', xhr.statusText);
+      alert('Error during file upload: ' + xhr.statusText);
+    };
+  
+    xhr.send(formData);
   };
 
   //Subscription Level Checking and Ads
@@ -249,14 +268,12 @@ const HomePage = () => {
       mediaRecorder.addEventListener("stop", () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         console.log("Recording stopped");
-        // Function to handle the blob further if needed
         onStop(audioBlob);
     });
 
       mediaRecorder.start();
       console.log("Recording started");
     }).catch(function (err) {
-        //enable the record button if getUserMedia() fails
         console.error("Recording failed: ", err);
     });
   }
@@ -284,7 +301,7 @@ const HomePage = () => {
     console.log("Playing audio")
 
     if (!file) {
-      console.log("No file selected.");
+      console.log("No file selected");
       return;
     }
 
@@ -305,7 +322,7 @@ const HomePage = () => {
 
     audioPlayer.play();
 
-    audioPlayer.onplay = () => console.log("Audio is now playing.");
+    audioPlayer.onplay = () => console.log("Audio is now playing");
     audioPlayer.onerror = () => console.error("Error occurred while trying to play the audio.");
 
   };
@@ -314,29 +331,40 @@ const HomePage = () => {
     const audioPlayer = document.getElementById('audioPlayer');
     if (audioPlayer && !audioPlayer.paused) {
       audioPlayer.pause();
+      console.log("Audio paused");
     }
   };
 
-  // Save Button
-  const handleSave = async () => {
-    console.log("Saving translation");
+  // Download Button
+  const handleFileDownload = async () => {
+    console.log("Downloading translation");
 
-    const formData = new FormData();
-    // Change with endpoint info
-    formData.append('file', file);
-    formData.append('user_id', user.id);
+    if (!translationId) {
+      alert("No translation ID available for downloading.");
+      return;
+    }
+
+    const downloadUrl = `http://127.0.0.1:5000/download-file/${user.id}/${translationId}`;
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/FILLIN', {
-        method: 'POST',
-        body: formData,
-        headers: {}
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
       });
       if (response.ok) {
-        alert("Translation saved successfully");
+        const blob = await response.blob();
+        // Create a link and trigger the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = "translation.mp3"; // FILENAME CHANGE
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        console.log("Translation downloaded successfully");
+      } else {
+        throw new Error("Failed to download file.");
       }
     } catch (error) {
-      console.error("Error saving translation:", error);
+      console.error("Error downloading translation:", error);
     }
   };
 
@@ -506,23 +534,33 @@ const HomePage = () => {
 
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
 
-              <Button   // Upload File & Translate
-                onClick={handleFileUpload}
-                size="lg" 
-                variant="solid" 
-                height='48px'
-                bg={'#304289'} 
-                px={'7px'}
-                borderRadius={'20px'}
-                borderStyle={'none'}
-                textDecor={'none'}
-                textColor={'#ffffff'}
-                fontSize={'16px'}
-                w={'80px'}
-                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
-              >
-              Translate
-              </Button>
+              <div>
+                {uploadProgress > 0 && (
+                  <div>
+                    <label>Upload Progress:</label>
+                    <progress value={uploadProgress} max="100"></progress>
+                    {uploadProgress}%
+                  </div>
+                )}
+
+                <Button   // Upload File & Translate
+                  onClick={handleFileUpload}
+                  size="lg" 
+                  variant="solid" 
+                  height='48px'
+                  bg={'#304289'} 
+                  px={'7px'}
+                  borderRadius={'20px'}
+                  borderStyle={'none'}
+                  textDecor={'none'}
+                  textColor={'#ffffff'}
+                  fontSize={'16px'}
+                  w={'80px'}
+                  _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+                >
+                Translate
+                </Button>
+              </div>
               
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
 
@@ -562,8 +600,8 @@ const HomePage = () => {
             </Stack>
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
-            <Button   // Save translated audio
-              onClick={handleSave}
+            <Button   // Download translated audio
+              onClick={handleFileDownload}
               size="lg" 
               variant="solid" 
               height='48px'
@@ -577,7 +615,7 @@ const HomePage = () => {
               w={'80px'}
               _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
             >
-            Save
+            Download
             </Button>
 
             <Button   // Share translated audio
