@@ -1,6 +1,7 @@
-import { Stack, Text, Box, Button, Container } from '@chakra-ui/react'
+import { Stack, Text, Box, Button, Container, Image } from '@chakra-ui/react'
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import logo from "../images/logo.png"
 
 function Subscription() {
   const [subscriptionLevel, setSubscriptionLevel] = useState('');
@@ -62,39 +63,25 @@ function Subscription() {
     }
   };
   return(
-    <Container
-    minHeight="100vh"
-    direction="column"
-    justify="flex-start"
-    align="center"
-    spacing="10px"
-    overflow="hidden"
-    bg="#CBD5E0"
-  >
+
     <Stack 
+      minHeight={'100vh'}
       direction="column" 
       justify="flex-start" 
       align="center" 
-      spacing="0px"
-      mb={'30px'}
+      bg="#E7EEFD"
     >
-      <Text
-        fontFamily="Roboto Mono"
-        fontWeight="bold"
-        fontSize="64px"
-        color="#000000"
-        maxWidth="100%"
-        textAlign="center"
-        mt={'20px'}
-      >
-        VocalAIze
-      </Text>
+      <Image
+            boxSize={'200px'}
+            src={logo}
+            alt='VocalAIze Logo'
+            />
       <form onSubmit={handleSubmit}>
         <Stack
           direction="row"
           justify="flex-start"
           align="flex-start"
-          spacing="200px"
+          spacing="100px"
         >
           {['Free', 'Plus', 'Ultra'].map(tier => (
             <Stack
@@ -105,24 +92,37 @@ function Subscription() {
               align="center"
               overflow="hidden"
               background="rgba(137, 172, 212, 0.3)"
+              shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
             >
               <Text
                 fontFamily="Roboto Mono"
                 fontWeight="bold"
                 fontSize="32px"
-                color="#000000"
+                color="#304289"
                 textAlign="center"
                 mt={'20px'}
+                textShadow= '-0.2px -0.2px 0 #000, 0.2px -0.2px 0 #000, -0.2px 0.2px 0 #000, 0.2px 0.2px 0 #000'
               >
-                {`${tier} Tier`}<hr/>
+                {`${tier} Tier`}
               </Text>
+              <Box as='div'
+              borderBottom={'2px black solid'}
+              w={'100px'}
+              mb={'50px'}
+              />
               <Text
                 fontFamily="Roboto Mono"
                 fontWeight="bold"
                 fontSize="25px"
-                color="#000000"
+                color="#304289"
+                textShadow= '-0.1px -0.1px 0 #000, 0.1px -0.1px 0 #000, -0.1px 0.1px 0 #000, 0.1px 0.1px 0 #000'
+                mt={'-20px'}
+                width={'300px'}
               >
-                <Box>
+                <Box
+                dir='column'
+                align='center'
+                >
                   <span>Price: ${tier === 'Free' ? '0.00' : tier === 'Plus' ? '4.99/mo' : '9.99/mo'}</span><br/><br/>
                   <span>{tier === 'Free' ? '10' : tier === 'Plus' ? '25' : '45'} translations/hour</span><br/><br/> 
                   <span>100+ languages</span><br/><br/>
@@ -133,15 +133,17 @@ function Subscription() {
                 type="submit"
                 size="lg"
                 variant="solid"
-                borderBottomRadius={'5px'}
-                fontSize={'30px'}
-                bg={'#89ACD4'}
-                width="373px"
-                height="97px"
-                maxWidth="100%"
+                bg={'#304289'}
+                px={'7px'}
+                height='48px'
+                w={'150px'}
+                mb={'20px'}
+                borderRadius={'20px'}
+                borderStyle={'none'}
                 textDecor={'none'}
-                textColor={'black'}
-                mt={'30px'}
+                textColor={'#ffffff'}
+                fontSize={'16px'}
+                _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
                 onClick={() => setSubscriptionLevel(tier)}
               >
                 Select
@@ -151,7 +153,6 @@ function Subscription() {
         </Stack>
       </form>
     </Stack>
-  </Container>
 );
 }
 
