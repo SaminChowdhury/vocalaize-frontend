@@ -21,6 +21,7 @@ const HomePage = () => {
   const [translationId, setTranslationId] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+<<<<<<< HEAD
   //Language Dropdown Menus
   useEffect(() => {
     const fetchLanguageOptions = async () => {
@@ -28,6 +29,34 @@ const HomePage = () => {
         const response = await fetch('http://localhost:5000/languages');
         if (!response.ok) {
           throw new Error('Failed to fetch language options');
+=======
+
+    const HomePage = () => {
+    const [file, setFile] = useState(null);
+    const [language1, setLanguage1] = useState('');
+    const [language2, setLanguage2] = useState('');
+    const [languageOptions, setLanguageOptions] = useState([]);
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+    const [subscriptionLevel, setSubscriptionLevel] = useState('');
+    const [showAds, setShowAds] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [user, setUser] = useState({ id: null });
+
+//Language Dropdown Menus
+
+    useEffect(() => {
+      const fetchLanguageOptions = async () => {
+        try {
+          const response = await fetch('http://20.9.240.176:5000/languages');
+          if (!response.ok) {
+            throw new Error('Failed to fetch language options');
+          }
+          const data = await response.json();
+          setLanguageOptions(data); // Ensure this matches the API response structure
+        } catch (error) {
+          console.error('Error:', error);
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
         }
         const data = await response.json();
         setLanguageOptions(data); // Ensure this matches the API response structure
@@ -60,7 +89,11 @@ const HomePage = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
+<<<<<<< HEAD
         fetch('http://localhost:5000/validate-token', {
+=======
+        fetch('http://20.9.240.176:5000/validate-token', {
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
             method: 'GET',
             headers: {
                 'token': `${token}`
@@ -161,11 +194,15 @@ const { getRootProps, getInputProps } = useDropzone({
     const token = localStorage.getItem('token');
     if (!token) {
       console.error("No token available.");
+<<<<<<< HEAD
 >>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
+=======
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
       return;
     }
 
     try {
+<<<<<<< HEAD
 <<<<<<< HEAD
       const response = await fetch('http://localhost:5000/upload-audio', {
         method: 'POST',
@@ -174,6 +211,10 @@ const { getRootProps, getInputProps } = useDropzone({
       const response = await fetch('http://127.0.0.1:5000/validate-token', {
         method: 'GET',
 >>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
+=======
+      const response = await fetch('http://20.9.240.176:5000/validate-token', {
+        method: 'GET',
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
         headers: {
           'token': `${token}`
         }
@@ -208,7 +249,11 @@ const handleFileUpload = async () => {
   formData.append('target_language', language2);
 
   try {
+<<<<<<< HEAD
     const response = await fetch('http://127.0.0.1:5000/upload-audio', {
+=======
+    const response = await fetch('http://20.9.240.176:5000/upload-audio', {
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
       method: 'POST',
       body: formData,
       headers: {
@@ -231,7 +276,11 @@ const handleFileUpload = async () => {
     console.log('User id before fetch is ' + userId);
     if (token) {
       try {
+<<<<<<< HEAD
         const response = await fetch(`http://localhost:5000/${userId}/subscription`, {
+=======
+        const response = await fetch(`http://20.9.240.176:5000/${userId}/subscription`, {
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
           method: 'GET', // Specify the correct HTTP method
           headers: {
             'Content-Type': 'application/json',
@@ -453,7 +502,7 @@ const handleFileUpload = async () => {
             >
               <option value="">Select Language 1</option>
               {languageOptions.map((lang) => (
-                <option key={lang.nlp_code} value={lang.nlp_code}>
+                <option key={lang.language_name} value={lang.language_name}>
                   {lang.language_name}
                 </option>
               ))}
@@ -472,7 +521,7 @@ const handleFileUpload = async () => {
             >
               <option value="">Select Language 2</option>
               {languageOptions.map((lang) => (
-                <option key={lang.nlp_code} value={lang.nlp_code}>
+                <option key={lang.language_name} value={lang.language_name}>
                   {lang.language_name}
                 </option>
               ))}
@@ -492,12 +541,20 @@ const handleFileUpload = async () => {
             >
             <Stack direction="row" justify="flex-start" align="center">
               
+<<<<<<< HEAD
             <Box w="200px" h="0px" mr="30px"> {/* Adjust width and height as needed */}
               <Input 
                 fontSize={'14px'}
                 type='file' 
                 onChange={handleFileChange}
                 size="sm"
+=======
+            <Input 
+            fontSize={'18px'}
+            type='file' 
+            onChange={handleFileChange}
+            size="md"
+>>>>>>> 31dc6303695a4bb9e162cca9b38263925c0c9268
               />
             </Box>
 
