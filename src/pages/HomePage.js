@@ -18,6 +18,8 @@ const HomePage = () => {
   const [showAds, setShowAds] = useState(false);
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState({ id: null });
+  const [translationId, setTranslationId] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   //Language Dropdown Menus
   useEffect(() => {
@@ -36,6 +38,7 @@ const HomePage = () => {
 
     fetchLanguageOptions();
   }, []);
+<<<<<<< HEAD
   //Language Dropdown Menus
   useEffect(() => {
     const fetchLanguageOptions = async () => {
@@ -50,11 +53,9 @@ const HomePage = () => {
         console.error('Error:', error);
       }
     };
+=======
+>>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
 
-    fetchLanguageOptions();
-  }, []);
-
-  //Token Checking
   //Token Checking
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -97,23 +98,20 @@ const HomePage = () => {
     }
   }, [userId]);
 
-  //File Dropzone
-  const onDrop = useCallback((acceptedFiles) => {
-    const firstFile = acceptedFiles[0];
-    if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
-      setFile({
-        name: firstFile.name,
-        size: firstFile.size,
-        type: firstFile.type,
-      });
-    }
-  }, []);
+//File Upload and Translation Operations
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    multiple: false,
-  });
+const onDrop = useCallback((acceptedFiles) => {
+  const firstFile = acceptedFiles[0];
+  if (firstFile && firstFile.name.match(/.(mp3|wav)$/)) {
+    setFile({
+      name: firstFile.name,
+      size: firstFile.size,
+      type: firstFile.type,
+    });
+  }
+}, []);
 
+<<<<<<< HEAD
   // Token validation to get user ID
   useEffect(() => {
     const validateToken = async () => {
@@ -152,34 +150,82 @@ const HomePage = () => {
   const handleFileUpload = async () => {
     if (!file || !user.id || !language1 || !language2) {
       alert("Please ensure a file is selected and all form fields are filled.");
+=======
+const { getRootProps, getInputProps } = useDropzone({
+  onDrop,
+  multiple: false,
+});
+ // Token validation to get user ID
+ useEffect(() => {
+  const validateToken = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token available.");
+>>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('user_id', user.id);
-    formData.append('source_language', language1);
-    formData.append('target_language', language2);
-
     try {
+<<<<<<< HEAD
       const response = await fetch('http://localhost:5000/upload-audio', {
         method: 'POST',
         body: formData,
+=======
+      const response = await fetch('http://127.0.0.1:5000/validate-token', {
+        method: 'GET',
+>>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
         headers: {
+          'token': `${token}`
         }
       });
 
-      if (!response.ok) throw new Error('Failed to upload file.');
+      if (!response.ok) throw new Error('Token validation failed.');
 
       const data = await response.json();
-      alert('File uploaded and translation created, ID: ' + data.translation_id);
+      setUser({ id: data.user_info.user_id });
     } catch (error) {
-      console.error('Error during file upload:', error);
-      alert('Error during file upload: ' + error.message);
+      console.error('Error validating token:', error);
     }
   };
 
-  //Subscription Level Checking and Ads
+  validateToken();
+}, []);
+
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
+};
+
+const handleFileUpload = async () => {
+  if (!file || !user.id || !language1 || !language2) {
+    alert("Please ensure a file is selected and all form fields are filled.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('user_id', user.id);
+  formData.append('source_language', language1);
+  formData.append('target_language', language2);
+
+  try {
+    const response = await fetch('http://127.0.0.1:5000/upload-audio', {
+      method: 'POST',
+      body: formData,
+      headers: {
+      }
+    });
+
+    if (!response.ok) throw new Error('Failed to upload file.');
+
+    const data = await response.json();
+    alert('File uploaded and translation created, ID: ' + data.translation_id);
+  } catch (error) {
+    console.error('Error during file upload:', error);
+    alert('Error during file upload: ' + error.message);
+  }
+};
+//Subscription Level Checking and Ads
+
   const checkSubscriptionLevel = async (userId) => {
     const token = localStorage.getItem('token');
     console.log('User id before fetch is ' + userId);
@@ -191,8 +237,8 @@ const HomePage = () => {
             'Content-Type': 'application/json',
             'token': `${token}`
           },
-          });
-
+        });
+  
         if (response.ok) {
           const data = await response.json();
           // Check if the subscription level is 'Free Tier' in the response
@@ -211,17 +257,18 @@ const HomePage = () => {
     }
   }  
 
+  
   useEffect(() => {
-    checkSubscriptionLevel(userId);
-    if (showAds) {
-      // Load Google AdSense script dynamically
-      const script = document.createElement('script');
-      script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
-      script.crossOrigin = "anonymous";
-      script.async = true;
-      document.body.appendChild(script);
-      console.log('when calling ads:' + userId)
-    }
+      checkSubscriptionLevel(userId);
+      if (showAds) {
+        // Load Google AdSense script dynamically
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6506241455661341";
+        script.crossOrigin = "anonymous";
+        script.async = true;
+        document.body.appendChild(script);
+        console.log('when calling ads:' + userId)
+      }
   }, [showAds]);
 
   // Audio Recording
@@ -249,14 +296,12 @@ const HomePage = () => {
       mediaRecorder.addEventListener("stop", () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         console.log("Recording stopped");
-        // Function to handle the blob further if needed
         onStop(audioBlob);
     });
 
       mediaRecorder.start();
       console.log("Recording started");
     }).catch(function (err) {
-        //enable the record button if getUserMedia() fails
         console.error("Recording failed: ", err);
     });
   }
@@ -284,7 +329,7 @@ const HomePage = () => {
     console.log("Playing audio")
 
     if (!file) {
-      console.log("No file selected.");
+      console.log("No file selected");
       return;
     }
 
@@ -305,7 +350,7 @@ const HomePage = () => {
 
     audioPlayer.play();
 
-    audioPlayer.onplay = () => console.log("Audio is now playing.");
+    audioPlayer.onplay = () => console.log("Audio is now playing");
     audioPlayer.onerror = () => console.error("Error occurred while trying to play the audio.");
 
   };
@@ -314,29 +359,47 @@ const HomePage = () => {
     const audioPlayer = document.getElementById('audioPlayer');
     if (audioPlayer && !audioPlayer.paused) {
       audioPlayer.pause();
+      console.log("Audio paused");
     }
   };
 
-  // Save Button
-  const handleSave = async () => {
-    console.log("Saving translation");
+  // Download Button
+  const handleFileDownload = async () => {
+    console.log("Downloading translation");
 
-    const formData = new FormData();
-    // Change with endpoint info
-    formData.append('file', file);
-    formData.append('user_id', user.id);
+    if (!translationId) {
+      alert("No translation ID available for downloading.");
+      return;
+    }
+
+    const downloadUrl = `http://127.0.0.1:5000/download-file/${user.id}/${translationId}`;
 
     try {
+<<<<<<< HEAD
       const response = await fetch('http://localhost:5000/FILLIN', {
         method: 'POST',
         body: formData,
         headers: {}
+=======
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+>>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
       });
       if (response.ok) {
-        alert("Translation saved successfully");
+        const blob = await response.blob();
+        // Create a link and trigger the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = "translation.mp3"; // FILENAME CHANGE
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        console.log("Translation downloaded successfully");
+      } else {
+        throw new Error("Failed to download file.");
       }
     } catch (error) {
-      console.error("Error saving translation:", error);
+      console.error("Error downloading translation:", error);
     }
   };
 
@@ -515,6 +578,7 @@ const HomePage = () => {
 
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
 
+<<<<<<< HEAD
               <Button   // Upload File & Translate
                 onClick={handleFileUpload}
                 size="lg" 
@@ -532,6 +596,35 @@ const HomePage = () => {
               >
               Translate
               </Button>
+=======
+              <div>
+                {uploadProgress > 0 && (
+                  <div>
+                    <label>Upload Progress:</label>
+                    <progress value={uploadProgress} max="100"></progress>
+                    {uploadProgress}%
+                  </div>
+                )}
+
+                <Button   // Upload File & Translate
+                  onClick={handleFileUpload}
+                  size="lg" 
+                  variant="solid" 
+                  height='48px'
+                  bg={'#304289'} 
+                  px={'7px'}
+                  borderRadius={'20px'}
+                  borderStyle={'none'}
+                  textDecor={'none'}
+                  textColor={'#ffffff'}
+                  fontSize={'16px'}
+                  w={'80px'}
+                  _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+                >
+                Translate
+                </Button>
+              </div>
+>>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
               
               <Box as='div' borderRight={'2px solid black'} h={'100px'} mx={'60px'} />
 
@@ -571,6 +664,7 @@ const HomePage = () => {
             </Stack>
           </Stack>
           <Stack direction="row" justify="center" align="center" ml={'950px'} mt={'20px'} m>
+<<<<<<< HEAD
             <Button   // Save translated audio
               onClick={handleSave}
                 size="lg" 
@@ -585,8 +679,24 @@ const HomePage = () => {
                 textColor={'#304289'}
                 fontSize={'16px'}
                 _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+=======
+            <Button   // Download translated audio
+              onClick={handleFileDownload}
+              size="lg" 
+              variant="solid" 
+              height='48px'
+              bg={'#ffffff'} 
+              borderRadius={'20px'}
+              borderStyle={'none'}
+              textDecor={'none'}
+              textColor={'#000000'}
+              fontSize={'16px'}
+              px={'7px'}
+              w={'80px'}
+              _hover={{shadow: '0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);'}}
+>>>>>>> 507bfb58cf3d2004489ef500f3944807401b2679
             >
-            Save
+            Download
             </Button>
 
             <Button   // Share translated audio
