@@ -11,7 +11,7 @@ function Subscription() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        fetch('http://127.0.0.1:5000/validate-token', {
+        fetch('http://localhost:5000/validate-token', {
             method: 'GET',
             headers: {
                 'token': `${token}` // Make sure you use the Authorization header
@@ -42,7 +42,7 @@ function Subscription() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (userId) {
-        fetch(`http://127.0.0.1:5000/user/${userId}/subscription`, {
+        fetch(`http://localhost:5000/user/${userId}/subscription`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscription_level: subscriptionLevel })
@@ -70,6 +70,7 @@ function Subscription() {
       justify="flex-start" 
       align="center" 
       bg="#E7EEFD"
+      bgGradient="linear(to-b, #FFFFFF, #061637)"
     >
       <Image
             boxSize={'200px'}
@@ -83,7 +84,7 @@ function Subscription() {
           align="flex-start"
           spacing="100px"
         >
-          {['Free', 'Plus', 'Ultra'].map(tier => (
+          {['Free', 'Plus'].map(tier => (
             <Stack
               key={tier}
               borderRadius="10px"
@@ -91,7 +92,7 @@ function Subscription() {
               justify="flex-start"
               align="center"
               overflow="hidden"
-              background="rgba(137, 172, 212, 0.3)"
+              background="#FFFFFF"
               shadow='0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
             >
               <Text

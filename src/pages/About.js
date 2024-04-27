@@ -1,5 +1,7 @@
-import { Stack, Text, Box, extendTheme } from '@chakra-ui/react';
+import { Stack, Text, Box, extendTheme, Fade } from '@chakra-ui/react';
 import NavBar from '../components/Navbar';
+import React from 'react';
+import Typewriter from '../components/Typewriter';
 
 const breakpoints = {
     base: '0em',
@@ -13,16 +15,23 @@ const breakpoints = {
 const theme = extendTheme({ breakpoints })
 
 export default function About() {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+React.useEffect(() => {
+  setIsOpen(true);  // Set open state to true when component mounts
+}, []);
+
     return(
         <div>
         <NavBar />
+        <Fade in={isOpen} transition={{ enter: { duration: 3 } }}>
         <Stack
         border={'0.5px black solid'}
         minHeight="100vh"
         direction='column'
         justify="flex-start"
         align="center"
-        bg="#E7EEFD"
+        bg="#FFFFFF"
         spacing={'20px'}
         p={'20px'}
         >
@@ -37,7 +46,7 @@ export default function About() {
                 color="#000000"
                 maxWidth="100%"
                 >
-                About Us
+                <Typewriter text= "A bout Us"></Typewriter>
                 </Text>
                 <Text
                 fontFamily="Roboto Mono"
@@ -60,7 +69,7 @@ export default function About() {
                 color="#000000"
                 maxWidth="100%"
                 >
-                Our Mission
+                <Typewriter text= "O ur Mission"></Typewriter>
                 </Text>
                 <Text
                 fontFamily="Roboto Mono"
@@ -84,7 +93,7 @@ export default function About() {
                 color="#000000"
                 maxWidth="100%"
                 >
-                What We Offer
+                <Typewriter text="W hat We Offer"></Typewriter>
                 </Text>
                 <Text
                 fontFamily="Roboto Mono"
@@ -125,7 +134,7 @@ export default function About() {
                 color="#000000"
                 maxWidth="100%"
                 >
-                Get Started Today
+                <Typewriter text= "G et Started Today"></Typewriter>
                 </Text>
                 <Text
                 fontFamily="Roboto Mono"
@@ -138,6 +147,7 @@ export default function About() {
                 </Text>
             </Box>
           </Stack>
+          </Fade>
         </div>
     );
 }
